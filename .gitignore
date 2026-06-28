@@ -1,0 +1,14 @@
+# Secrets — never commit or sync real keys
+config/.env
+
+# Installed packages & build output — never store in OneDrive
+node_modules/
+.next/
+dist/
+build/
+__pycache__/
+.venv/
+
+# OS junk
+.DS_Store
+Thumbs.db
