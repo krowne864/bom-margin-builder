@@ -16,8 +16,9 @@ Help sales/engineering price a project quickly and see the margin before quoting
 
 - Add calculated items to a running BOM with quantities.
 - Edit or remove any line; change quantity inline.
-- "Set tier for all" applies one discount tier to every line.
-- Totals: total list, total dealer net, total loaded cost, and a blended **effective margin**.
+- "Set tier for all" applies one discount tier to every line; "Set markup for all" applies one markup to every line.
+- Each line shows its freight (a "Free" tag when freight is waived).
+- Totals: total list, total dealer net, total loaded cost, and a blended **gross margin**.
 
 ## Import / export / share
 

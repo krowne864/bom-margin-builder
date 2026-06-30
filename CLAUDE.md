@@ -27,7 +27,9 @@ All math runs in the page. Hosted on GitHub Pages from the repo root (`index.htm
 - Freight is waived automatically when cost > $2,500.
 - Dealer-net factors by discount tier are defined in the `TIERS` array in `index.html`.
 - Item margin = (dealer net − loaded cost) / dealer net.
-- Effective margin (project) = (total dealer net − total loaded cost) / total dealer net.
+- Gross margin (project, blended) = (total dealer net − total loaded cost) / total dealer net.
+- "Set markup for all" and "Set tier for all" bulk-apply a common markup / discount tier to every BOM line.
+- The BOM shows freight per line (a "Free" tag appears when cost > $2,500).
 
 ## Deploy
 

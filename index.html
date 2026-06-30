@@ -109,6 +109,7 @@
   .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
   .toolbar .grp{display:flex;gap:6px;align-items:center}
   .toolbar select{width:auto;padding:7px 9px;font-size:11.5px}
+  input.bulkmk{width:64px;padding-left:9px;font-size:11.5px;text-align:right}
   .toolbar .lbl{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
   .spacer{flex:1}
 
@@ -249,6 +250,11 @@
       <select id="bulkTier"></select>
       <button class="btn sm" id="applyAll">Apply</button>
     </div>
+    <div class="grp">
+      <span class="lbl">Set markup for all</span>
+      <input type="number" class="bulkmk" id="bulkMarkup" value="1.7" min="1" max="3" step="0.1">
+      <button class="btn sm" id="applyAllMarkup">Apply</button>
+    </div>
     <div class="spacer"></div>
     <div class="grp">
       <button class="btn ghost sm" id="importBtn">Import CSV</button>
@@ -263,7 +269,7 @@
       <thead>
         <tr>
           <th class="l">Part / Description</th>
-          <th>Qty</th><th>Cost</th><th>Markup</th><th>List</th>
+          <th>Qty</th><th>Cost</th><th>Freight</th><th>Markup</th><th>List</th>
           <th>Tier</th><th>Ext. Net</th><th>Margin</th><th></th>
         </tr>
       </thead>
@@ -272,7 +278,7 @@
   </div>
 
   <div class="totals">
-    <div class="tstat eff"><div class="k">Effective Margin</div><div class="v" id="effMargin">&mdash;</div></div>
+    <div class="tstat eff"><div class="k">Gross Margin</div><div class="v" id="effMargin">&mdash;</div></div>
     <div class="tstat"><div class="k">Total List</div><div class="v" id="totList">$0.00</div></div>
     <div class="tstat"><div class="k">Total Dealer Net</div><div class="v" id="totNet">$0.00</div></div>
     <div class="tstat"><div class="k">Total Loaded Cost</div><div class="v" id="totCost">$0.00</div></div>
@@ -282,7 +288,7 @@
     <div class="inp"><input type="email" id="email" placeholder="name@krowne.com"></div>
     <button class="btn" id="emailBtn">Email Summary</button>
   </div>
-  <div class="hint">Effective margin is the blended project margin: (total dealer net &minus; total loaded cost) &divide; total dealer net. Email opens your mail client with a text summary; use Export CSV to attach the full sheet.</div>
+  <div class="hint">Gross margin is the blended project margin: (total dealer net &minus; total loaded cost) &divide; total dealer net. Email opens your mail client with a text summary; use Export CSV to attach the full sheet.</div>
 </div>
 
 <script>
@@ -446,7 +452,7 @@
     var tb=document.getElementById('bomRows');
     var totList=0,totNet=0,totCost=0;
     if(!items.length){
-      tb.innerHTML='<tr><td colspan="9" class="empty">No items yet. Build an item above and click “Add to BOM”, or import a CSV.</td></tr>';
+      tb.innerHTML='<tr><td colspan="10" class="empty">No items yet. Build an item above and click “Add to BOM”, or import a CSV.</td></tr>';
     } else {
       tb.innerHTML=items.map(function(it){
         var d=derive(it);
@@ -456,7 +462,8 @@
         return '<tr>'+
           '<td class="l">'+(esc(it.partNumber)||'—')+'<div class="desc">'+esc(it.description)+'</div></td>'+
           '<td><input class="qtyinp" type="number" min="1" step="1" value="'+qty+'" data-qty="'+it.id+'"></td>'+
-          '<td>'+fmt(d.cost)+(d.free?' *':'')+'</td>'+
+          '<td>'+fmt(d.cost)+'</td>'+
+          '<td>'+(d.free?'<span class="tagt">Free</span>':fmt(d.freight))+'</td>'+
           '<td>'+d.markup.toFixed(1)+'×</td>'+
           '<td>'+fmt(d.list)+'</td>'+
           '<td><span class="tagt">'+it.tier+'</span></td>'+
@@ -485,10 +492,16 @@
     });
   }
 
-  /* ---------- set tier for all ---------- */
+  /* ---------- set tier / markup for all ---------- */
   document.getElementById('applyAll').addEventListener('click',function(){
     var t=document.getElementById('bulkTier').value;
     items.forEach(function(it){it.tier=t;});
+    renderBOM();
+  });
+  document.getElementById('applyAllMarkup').addEventListener('click',function(){
+    var m=parseFloat(document.getElementById('bulkMarkup').value);
+    if(!isFinite(m)||m<=0){alert('Enter a valid markup (e.g. 1.7).');return;}
+    items.forEach(function(it){it.markup=m;});
     renderBOM();
   });
   document.getElementById('clearBtn').addEventListener('click',function(){
@@ -589,9 +602,9 @@
       '\nTotal List:        '+fmt(totList)+
       '\nTotal Dealer Net:  '+fmt(totNet)+
       '\nTotal Loaded Cost: '+fmt(totCost)+
-      '\nEFFECTIVE MARGIN:  '+pct(eff)+
+      '\nGROSS MARGIN:      '+pct(eff)+
       '\n\nItems: '+items.length;
-    var subject=(proj?proj+' — ':'')+'Krowne BOM Summary — Effective Margin '+pct(eff);
+    var subject=(proj?proj+' — ':'')+'Krowne BOM Summary — Gross Margin '+pct(eff);
     window.location.href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
   });
 
