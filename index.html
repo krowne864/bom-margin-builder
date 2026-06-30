@@ -328,6 +328,8 @@
   function num(id){var v=parseFloat(document.getElementById(id).value);return isFinite(v)?v:0;}
   function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m];});}
   function marginClass(m){return m>=0.50?'green':(m>=0.20?'yellow':'red');}
+  /* markup display: full precision, up to 4 decimals, no trailing zeros */
+  function mkfmt(m){return isFinite(m)?String(Math.round(m*1e4)/1e4):'0';}
 
   /* derive list/net/margin for an item record */
   function derive(it){
@@ -368,7 +370,7 @@
     lastCost=st.cost; lastList=st.list;
 
     var mk=isFinite(st.markup)?st.markup:0;
-    document.getElementById('mv').innerHTML=(manual?mk.toFixed(2):mk.toFixed(1))+'&times;';
+    document.getElementById('mv').innerHTML=mkfmt(mk)+'&times;';
     if(!manual){ document.getElementById('markup').style.setProperty('--pct',((mk-1)/2*100)+'%'); }
 
     var loaded=st.cost+st.freight;
@@ -506,7 +508,7 @@
           '<td><input class="qtyinp" type="number" min="1" step="1" value="'+qty+'" data-qty="'+it.id+'"></td>'+
           '<td>'+fmt(d.cost)+'</td>'+
           '<td>'+fmt(d.freight)+'</td>'+
-          '<td>'+d.markup.toFixed(1)+'×</td>'+
+          '<td>'+mkfmt(d.markup)+'×</td>'+
           '<td>'+fmt(d.list)+'</td>'+
           '<td><span class="tagt">'+it.tier+'</span></td>'+
           '<td>'+fmt(extNet)+'</td>'+
