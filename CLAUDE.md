@@ -24,12 +24,13 @@ All math runs in the page. Hosted on GitHub Pages from the repo root (`index.htm
 ## Pricing logic (do not change without confirming)
 
 - List price = (cost × markup) / 0.45
-- Freight is waived automatically when cost > $2,500.
+- Freight is always added to loaded cost (no automatic waiving).
+- "Markup as dependent variable" mode: user enters Cost and List directly; markup = (list × 0.45) / cost, shown as a computed number not limited to the 1.0–3.0 slider range. Use for existing items with a published list and known cost.
 - Dealer-net factors by discount tier are defined in the `TIERS` array in `index.html`.
 - Item margin = (dealer net − loaded cost) / dealer net.
 - Gross margin (project, blended) = (total dealer net − total loaded cost) / total dealer net.
 - "Set markup for all" and "Set tier for all" bulk-apply a common markup / discount tier to every BOM line.
-- The BOM shows freight per line (a "Free" tag appears when cost > $2,500).
+- The BOM shows freight per line.
 
 ## Deploy
 

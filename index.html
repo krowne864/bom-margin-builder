@@ -61,6 +61,10 @@
   .field.disabled{opacity:.45}
   .field.disabled input{background:var(--disabled);cursor:not-allowed;color:var(--text-dim)}
   .waived{font-size:9px;letter-spacing:.06em;color:var(--teal);margin-top:4px}
+  .chk{display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:11px;color:var(--text);cursor:pointer;margin-bottom:0}
+  .chk input{width:auto;margin:0;padding:0;cursor:pointer;flex:none}
+  #markupField.computed input[type=range],#markupField.computed .scale{display:none}
+  .computed-note{font-size:9px;color:var(--text-dim);margin-top:4px;letter-spacing:.03em;line-height:1.4}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .three{display:grid;grid-template-columns:1fr 1fr .72fr;gap:10px}
   input.plain{padding-left:11px}
@@ -187,7 +191,7 @@
           <input type="text" id="description" placeholder="e.g. 3/4 HP power pack">
         </div>
       </div>
-      <div class="field">
+      <div class="field" id="variantField">
         <label>Variant <span class="mv" id="variantHint">Cost &rarr; List</span></label>
         <div class="seg" id="seg">
           <button type="button" class="segbtn active" data-mode="list">Enter Cost</button>
@@ -195,19 +199,26 @@
         </div>
       </div>
       <div class="field">
+        <label class="chk"><input type="checkbox" id="manualMode"> Markup as dependent variable &mdash; enter Cost &amp; List directly</label>
+      </div>
+      <div class="field">
         <label for="driver" id="driverLabel">Cost</label>
         <div class="inp"><span class="pre">$</span><input type="number" id="driver" value="1000" min="0" step="any"></div>
       </div>
-      <div class="field">
+      <div class="field" id="listField" style="display:none">
+        <label for="listInput">List Price</label>
+        <div class="inp"><span class="pre">$</span><input type="number" id="listInput" value="0" min="0" step="any"></div>
+      </div>
+      <div class="field" id="markupField">
         <label for="markup">Markup <span class="mv" id="mv">1.7&times;</span></label>
         <input type="range" id="markup" min="1" max="3" step="0.1" value="1.7">
         <div class="scale"><span>1.0&times;</span><span>3.0&times;</span></div>
+        <div class="computed-note" id="markupNote" style="display:none">Computed from Cost &amp; List &mdash; fixed value, not limited to the slider range.</div>
       </div>
       <div class="three">
         <div class="field" id="freightField">
           <label for="freight">Freight</label>
           <div class="inp"><span class="pre">$</span><input type="number" id="freight" value="50" min="0" step="any"></div>
-          <div class="waived" id="waived" style="display:none">Free freight &mdash; cost over $2,500</div>
         </div>
         <div class="field">
           <label for="tier">Discount Tier</label>
@@ -308,7 +319,7 @@
     {key:'50/10/10',    factor:0.405},
     {key:'50/10/10/10', factor:0.3645}
   ];
-  var DEFAULT_TIER='50/10', THRESH=2500;
+  var DEFAULT_TIER='50/10';
   function tierFactor(k){var t=TIERS.find(function(x){return x.key===k;});return t?t.factor:0.45;}
 
   /* ---------- helpers ---------- */
@@ -321,12 +332,11 @@
   /* derive list/net/margin for an item record */
   function derive(it){
     var cost=+it.cost||0, markup=+it.markup||0, freight=+it.freight||0;
-    var free=cost>THRESH, effFreight=free?0:freight;
     var list=(cost*markup)/0.45;
-    var loaded=cost+effFreight;
+    var loaded=cost+freight;
     var net=list*tierFactor(it.tier);
     var margin=net>0?(net-loaded)/net:NaN;
-    return {cost:cost,markup:markup,freight:freight,free:free,list:list,loaded:loaded,net:net,margin:margin};
+    return {cost:cost,markup:markup,freight:freight,list:list,loaded:loaded,net:net,margin:margin};
   }
 
   /* ---------- populate tier selects ---------- */
@@ -337,28 +347,31 @@
   })();
 
   /* ---------- editor ---------- */
-  var mode='list', lastCost=0, lastList=0, editingId=null;
+  var mode='list', manual=false, lastCost=0, lastList=0, editingId=null;
 
   function editorState(){
-    var markup=num('markup'), freight=num('freight'), driver=num('driver'), cost, list;
-    if(mode==='cost'){ list=driver; cost=markup?(list*0.45)/markup:0; }
-    else { cost=driver; list=(cost*markup)/0.45; }
+    var freight=num('freight'), cost, list, markup;
+    if(manual){
+      cost=num('driver'); list=num('listInput');
+      markup = cost>0 ? (list*0.45)/cost : 0;
+    } else {
+      markup=num('markup');
+      var driver=num('driver');
+      if(mode==='cost'){ list=driver; cost=markup?(list*0.45)/markup:0; }
+      else { cost=driver; list=(cost*markup)/0.45; }
+    }
     return {cost:cost,markup:markup,freight:freight,list:list,tier:document.getElementById('tier').value};
   }
 
   function renderEditor(){
-    var markup=num('markup');
-    document.getElementById('mv').innerHTML=markup.toFixed(1)+'&times;';
-    document.getElementById('markup').style.setProperty('--pct',((markup-1)/2*100)+'%');
-
     var st=editorState();
     lastCost=st.cost; lastList=st.list;
 
-    var free=st.cost>THRESH;
-    document.getElementById('freightField').classList.toggle('disabled',free);
-    document.getElementById('freight').disabled=free;
-    document.getElementById('waived').style.display=free?'block':'none';
-    var loaded=st.cost+(free?0:st.freight);
+    var mk=isFinite(st.markup)?st.markup:0;
+    document.getElementById('mv').innerHTML=(manual?mk.toFixed(2):mk.toFixed(1))+'&times;';
+    if(!manual){ document.getElementById('markup').style.setProperty('--pct',((mk-1)/2*100)+'%'); }
+
+    var loaded=st.cost+st.freight;
 
     if(mode==='cost'){document.getElementById('heroLabel').textContent='Cost';document.getElementById('heroVal').textContent=fmt(st.cost);}
     else{document.getElementById('heroLabel').textContent='List Price';document.getElementById('heroVal').textContent=fmt(st.list);}
@@ -387,7 +400,29 @@
     renderEditor();
   }
   document.querySelectorAll('#seg .segbtn').forEach(function(b){b.addEventListener('click',function(){setMode(b.getAttribute('data-mode'));});});
-  ['driver','markup','freight','tier'].forEach(function(id){document.getElementById(id).addEventListener('input',renderEditor);});
+  ['driver','listInput','markup','freight','tier'].forEach(function(id){document.getElementById(id).addEventListener('input',renderEditor);});
+
+  /* ---------- markup-as-dependent (manual cost+list) mode ---------- */
+  function syncManualUI(){
+    document.getElementById('variantField').style.display=manual?'none':'';
+    document.getElementById('listField').style.display=manual?'':'none';
+    document.getElementById('markupField').classList.toggle('computed',manual);
+    document.getElementById('markupNote').style.display=manual?'block':'none';
+    if(manual) document.getElementById('driverLabel').textContent='Cost';
+  }
+  document.getElementById('manualMode').addEventListener('change',function(){
+    manual=this.checked;
+    if(manual){
+      document.getElementById('driver').value=lastCost.toFixed(2);
+      document.getElementById('listInput').value=lastList.toFixed(2);
+      document.getElementById('driverLabel').textContent='Cost';
+    } else {
+      if(mode==='cost'){ document.getElementById('driver').value=lastList.toFixed(2); document.getElementById('driverLabel').textContent='List Price'; }
+      else { document.getElementById('driver').value=lastCost.toFixed(2); document.getElementById('driverLabel').textContent='Cost'; }
+    }
+    syncManualUI();
+    renderEditor();
+  });
 
   /* ---------- BOM state ---------- */
   var items=[], seq=1;
@@ -402,6 +437,7 @@
       markup: st.markup,
       freight: st.freight,
       tier: st.tier,
+      manual: manual,
       qty: Math.max(1, Math.round(num('qty'))||1)
     };
     if(editingId){
@@ -420,16 +456,22 @@
     document.getElementById('partNumber').value=it.partNumber;
     document.getElementById('description').value=it.description;
     document.getElementById('tier').value=it.tier;
-    document.getElementById('markup').value=it.markup;
     document.getElementById('freight').value=it.freight;
     document.getElementById('qty').value=it.qty||1;
-    if(mode!=='list'){ // ensure Cost-entry mode for editing
-      mode='list';
-      document.getElementById('driverLabel').textContent='Cost';
-      document.getElementById('variantHint').innerHTML='Cost &rarr; List';
-      document.querySelectorAll('#seg .segbtn').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-mode')==='list');});
-    }
+    // edit in Cost-entry orientation
+    mode='list';
+    document.getElementById('variantHint').innerHTML='Cost &rarr; List';
+    document.querySelectorAll('#seg .segbtn').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-mode')==='list');});
+    manual=!!it.manual;
+    document.getElementById('manualMode').checked=manual;
     document.getElementById('driver').value=it.cost;
+    document.getElementById('driverLabel').textContent='Cost';
+    if(manual){
+      document.getElementById('listInput').value=((+it.cost||0)*(+it.markup||0)/0.45).toFixed(2);
+    } else {
+      document.getElementById('markup').value=it.markup;
+    }
+    syncManualUI();
     document.getElementById('editorTitle').textContent='Item Calculator — Editing '+(it.partNumber||'item');
     document.getElementById('addBtn').textContent='Update Item';
     document.getElementById('cancelBtn').style.display='inline-block';
@@ -463,7 +505,7 @@
           '<td class="l">'+(esc(it.partNumber)||'—')+'<div class="desc">'+esc(it.description)+'</div></td>'+
           '<td><input class="qtyinp" type="number" min="1" step="1" value="'+qty+'" data-qty="'+it.id+'"></td>'+
           '<td>'+fmt(d.cost)+'</td>'+
-          '<td>'+(d.free?'<span class="tagt">Free</span>':fmt(d.freight))+'</td>'+
+          '<td>'+fmt(d.freight)+'</td>'+
           '<td>'+d.markup.toFixed(1)+'×</td>'+
           '<td>'+fmt(d.list)+'</td>'+
           '<td><span class="tagt">'+it.tier+'</span></td>'+
@@ -501,7 +543,7 @@
   document.getElementById('applyAllMarkup').addEventListener('click',function(){
     var m=parseFloat(document.getElementById('bulkMarkup').value);
     if(!isFinite(m)||m<=0){alert('Enter a valid markup (e.g. 1.7).');return;}
-    items.forEach(function(it){it.markup=m;});
+    items.forEach(function(it){it.markup=m; it.manual=false;});
     renderBOM();
   });
   document.getElementById('clearBtn').addEventListener('click',function(){
@@ -609,6 +651,7 @@
   });
 
   /* ---------- boot ---------- */
+  syncManualUI();
   renderEditor();
   renderBOM();
 </script>
