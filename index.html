@@ -60,7 +60,6 @@
   .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .three{display:grid;grid-template-columns:1fr 1fr .72fr;gap:10px}
   input.plain{padding-left:11px}
-  input.qtyinp{width:56px;padding:4px 7px;font-size:12px;font-weight:500;text-align:right}
 
   .seg{display:flex;gap:6px;background:var(--input-bg);border:1px solid var(--line);border-radius:8px;padding:3px}
   .segbtn{flex:1;border:none;background:transparent;color:var(--text-dim);font-family:'Jost',sans-serif;font-weight:600;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:7px 4px;border-radius:6px;cursor:pointer;transition:background .2s,color .2s}
@@ -117,7 +116,7 @@
   .spacer{flex:1}
 
   .bomwrap{overflow-x:auto;border:1px solid var(--line);border-radius:11px}
-  table.bom{width:100%;border-collapse:collapse;min-width:780px}
+  table.bom{width:100%;border-collapse:collapse;min-width:820px}
   .bom th{font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);font-weight:600;text-align:right;padding:8px 11px;background:var(--panel-2);border-bottom:1px solid var(--line);white-space:nowrap}
   .bom th:first-child,.bom th.l{text-align:left}
   .bom td{padding:7px 11px;border-top:1px solid var(--line);font-size:12px;text-align:right;font-family:'Jost',sans-serif;font-weight:500;white-space:nowrap}
@@ -201,13 +200,11 @@
         </div>
       </div>
 
-      <!-- single driver input (normal mode) -->
       <div class="field" id="driverWrap">
         <label for="driver" id="driverLabel">Landed Cost</label>
         <div class="inp"><span class="pre">$</span><input type="number" id="driver" value="1000" min="0" step="any"></div>
       </div>
 
-      <!-- dual inputs (markup dep var mode) -->
       <div class="dual" id="dualWrap" style="display:none">
         <div class="field">
           <label for="dualCost">Landed Cost</label>
@@ -219,7 +216,6 @@
         </div>
       </div>
 
-      <!-- markup: slider or computed -->
       <div class="markup-row">
         <label class="chk-wrap" title="Enter both cost and list — markup is back-solved automatically">
           <input type="checkbox" id="markupDep">
@@ -229,7 +225,7 @@
       <div id="markupSliderWrap" style="margin-bottom:9px">
         <div class="field" style="margin-bottom:0">
           <label for="markup">Markup <span class="mv" id="mv">1.7&times;</span></label>
-          <input type="range" id="markup" min="1" max="3" step="0.01" value="1.7">
+          <input type="range" id="markup" min="1" max="3" step="0.05" value="1.7">
           <div class="scale"><span>1.0&times;</span><span>3.0&times;</span></div>
         </div>
       </div>
@@ -297,7 +293,7 @@
       <thead>
         <tr>
           <th class="l">#</th><th class="l">Part / Description</th>
-          <th>Qty</th><th>Landed Cost</th><th>Markup</th><th>Item List</th>
+          <th>Qty</th><th>Landed Cost</th><th>Freight</th><th>Markup</th><th>Item List</th>
           <th>Tier</th><th>Ext. Net</th><th>Margin</th><th></th>
         </tr>
       </thead>
@@ -343,9 +339,6 @@
   function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m];});}
   function marginClass(m){return m>=0.50?'green':(m>=0.20?'yellow':'red');}
 
-  /* derive() - no free-freight logic
-     Normal:    list = (cost + freight) * markup / 0.45
-     Dep var:   list is fixed; markup back-solved = list * 0.45 / (cost + freight) */
   function derive(it){
     var cost=+it.cost||0, markup=+it.markup||0, freight=+it.freight||0, list=+it.list||0;
     var loaded=cost+freight;
@@ -402,7 +395,6 @@
     var st=editorState();
     lastCost=st.cost; lastList=st.list;
     var loaded=st.cost+st.freight;
-
     if(markupDepMode){
       var bs=loaded>0?(st.list*0.45)/loaded:0;
       document.getElementById('markupComputed').textContent=(isFinite(bs)&&bs>0)?bs.toFixed(4)+'\u00d7':'\u2014';
@@ -411,7 +403,6 @@
       document.getElementById('mv').innerHTML=markup.toFixed(1)+'&times;';
       document.getElementById('markup').style.setProperty('--pct',((markup-1)/2*100)+'%');
     }
-
     document.getElementById('heroVal').textContent=fmt(st.list);
     document.getElementById('loaded').textContent=fmt(loaded);
     var net=st.list*tierFactor(st.tier);
@@ -419,7 +410,6 @@
     document.getElementById('netTier').textContent=st.tier;
     document.getElementById('net').textContent=fmt(net);
     var mp=document.getElementById('itemMargin'); mp.textContent=pct(margin); mp.className='pill '+marginClass(margin);
-
     document.getElementById('refRows').innerHTML=TIERS.map(function(t){
       var n=st.list*t.factor, mg=n>0?(n-loaded)/n:NaN;
       return '<tr class="'+(t.key===st.tier?'sel':'')+'"><td>'+t.key+'</td><td>'+fmt(n)+'</td><td>'+pct(mg)+'</td></tr>';
@@ -522,7 +512,7 @@
     var tb=document.getElementById('bomRows');
     var totList=0,totNet=0,totCost=0;
     if(!items.length){
-      tb.innerHTML='<tr><td colspan="10" class="empty">No items yet. Build an item above and click \u201cAdd to BOM\u201d, or import a CSV.</td></tr>';
+      tb.innerHTML='<tr><td colspan="11" class="empty">No items yet. Build an item above and click \u201cAdd to BOM\u201d, or import a CSV.</td></tr>';
     } else {
       tb.innerHTML=items.map(function(it,idx){
         var d=derive(it); var qty=Math.max(1,+it.qty||1); var extNet=d.net*qty;
@@ -532,12 +522,13 @@
           : '<span style="font-weight:700">'+esc(it.partNumber||'\u2014')+'</span>';
         var mkupDisplay=d.markupDep
           ? '<span style="color:var(--teal);font-size:10.5px" title="back-solved">\u2248'+d.markup.toFixed(2)+'\u00d7</span>'
-          : d.markup.toFixed(1)+'\u00d7';
+          : d.markup.toFixed(2)+'\u00d7';
         return '<tr>'+
           '<td class="l" style="color:var(--text-dim);font-size:11px;width:28px">'+(idx+1)+'</td>'+
           '<td class="l">'+pnCell+'<div class="desc">'+esc(it.description)+'</div></td>'+
-          '<td><input class="qtyinp" type="number" min="1" step="1" value="'+qty+'" data-qty="'+it.id+'"></td>'+
+          '<td style="text-align:right;font-weight:600">'+qty+'</td>'+
           '<td>'+fmt(d.cost)+'</td>'+
+          '<td>'+fmt(d.freight)+'</td>'+
           '<td>'+mkupDisplay+'</td>'+
           '<td>'+fmt(d.list)+'</td>'+
           '<td><span class="tagt">'+it.tier+'</span></td>'+
@@ -557,12 +548,6 @@
     document.getElementById('itemCount').textContent=items.length?(items.length+' line'+(items.length>1?'s':'')+' \u00b7 '+qtot+' unit'+(qtot>1?'s':'')):'';
     tb.querySelectorAll('[data-edit]').forEach(function(b){b.addEventListener('click',function(){editItem(+b.getAttribute('data-edit'));});});
     tb.querySelectorAll('[data-del]').forEach(function(b){b.addEventListener('click',function(){removeItem(+b.getAttribute('data-del'));});});
-    tb.querySelectorAll('[data-qty]').forEach(function(inp){
-      inp.addEventListener('input',function(){
-        var it=items.find(function(x){return x.id=== +inp.getAttribute('data-qty');});
-        if(it){it.qty=Math.max(1,Math.round(+inp.value)||1);renderBOM();}
-      });
-    });
   }
 
   document.getElementById('applyAll').addEventListener('click',function(){
@@ -576,10 +561,10 @@
 
   function csvCell(v){v=String(v==null?'':v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
   document.getElementById('exportBtn').addEventListener('click',function(){
-    var head=['Part Number','Description','Link','Qty','Landed Cost','Markup','Freight','Tier','Item List','Unit Net','Ext Net','Margin %','Markup Dep'];
+    var head=['Part Number','Description','Link','Qty','Landed Cost','Freight','Markup','Tier','Item List','Unit Net','Ext Net','Margin %','Markup Dep'];
     var rows=items.map(function(it){
       var d=derive(it); var qty=Math.max(1,+it.qty||1);
-      return [it.partNumber,it.description,it.link||'',qty,d.cost.toFixed(2),d.markup.toFixed(4),d.freight,it.tier,
+      return [it.partNumber,it.description,it.link||'',qty,d.cost.toFixed(2),d.freight.toFixed(2),d.markup.toFixed(4),it.tier,
               d.list.toFixed(2),d.net.toFixed(2),(d.net*qty).toFixed(2),
               (isFinite(d.margin)?(d.margin*100).toFixed(1):''),it.markupDep?'Y':''].map(csvCell).join(',');
     });
