@@ -57,9 +57,6 @@
   input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   input[type=text],input[type=email]{font-size:13px;font-weight:400}
   input:focus,select:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(1,167,157,.18)}
-  .field.disabled{opacity:.45}
-  .field.disabled input{background:var(--disabled);cursor:not-allowed;color:var(--text-dim)}
-  .waived{font-size:9px;letter-spacing:.06em;color:var(--teal);margin-top:4px}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .three{display:grid;grid-template-columns:1fr 1fr .72fr;gap:10px}
   input.plain{padding-left:11px}
@@ -74,6 +71,14 @@
   input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:var(--teal);border:2px solid var(--panel);box-shadow:0 1px 4px rgba(0,0,0,.3);cursor:pointer}
   input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--teal);border:2px solid var(--panel);cursor:pointer}
   .scale{display:flex;justify-content:space-between;font-size:9px;color:var(--text-dim);margin-top:4px;letter-spacing:.05em}
+
+  .markup-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .markup-row .chk-wrap{display:flex;align-items:center;gap:6px;flex:none;white-space:nowrap;cursor:pointer;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)}
+  .markup-row .chk-wrap input[type=checkbox]{width:14px;height:14px;accent-color:var(--teal);cursor:pointer;margin:0;padding:0;border:none;background:none}
+  .markup-computed{font-family:'Jost',sans-serif;font-weight:700;font-size:16px;color:var(--teal);padding:8px 12px;
+    background:var(--input-bg);border:1px dashed var(--teal);border-radius:8px;text-align:center;letter-spacing:.04em}
+  .markup-note{font-size:9px;color:var(--text-dim);margin-top:3px;letter-spacing:.03em}
+  .dual{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
   .stats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
   .stat{flex:1;min-width:96px;border:1px solid var(--line);border-radius:9px;padding:8px 11px}
@@ -188,27 +193,56 @@
         <label for="itemLink">Product Link <span style="color:var(--text-dim);font-size:9px;letter-spacing:0;text-transform:none">optional</span></label>
         <input type="text" id="itemLink" placeholder="https://krowne.com/product-showcase/...">
       </div>
-      <div class="field">
+      <div class="field" id="segWrap">
         <label>Variant <span class="mv" id="variantHint">Landed Cost &rarr; List</span></label>
         <div class="seg" id="seg">
           <button type="button" class="segbtn active" data-mode="list">Enter Landed Cost</button>
           <button type="button" class="segbtn" data-mode="cost">Enter Item List</button>
         </div>
       </div>
-      <div class="field">
+
+      <!-- single driver input (normal mode) -->
+      <div class="field" id="driverWrap">
         <label for="driver" id="driverLabel">Landed Cost</label>
         <div class="inp"><span class="pre">$</span><input type="number" id="driver" value="1000" min="0" step="any"></div>
       </div>
-      <div class="field">
-        <label for="markup">Markup <span class="mv" id="mv">1.7&times;</span></label>
-        <input type="range" id="markup" min="1" max="3" step="0.1" value="1.7">
-        <div class="scale"><span>1.0&times;</span><span>3.0&times;</span></div>
+
+      <!-- dual inputs (markup dep var mode) -->
+      <div class="dual" id="dualWrap" style="display:none">
+        <div class="field">
+          <label for="dualCost">Landed Cost</label>
+          <div class="inp"><span class="pre">$</span><input type="number" id="dualCost" value="1000" min="0" step="any"></div>
+        </div>
+        <div class="field">
+          <label for="dualList">Item List</label>
+          <div class="inp"><span class="pre">$</span><input type="number" id="dualList" value="3778" min="0" step="any"></div>
+        </div>
       </div>
+
+      <!-- markup: slider or computed -->
+      <div class="markup-row">
+        <label class="chk-wrap" title="Enter both cost and list — markup is back-solved automatically">
+          <input type="checkbox" id="markupDep">
+          Markup = dependent variable
+        </label>
+      </div>
+      <div id="markupSliderWrap" style="margin-bottom:9px">
+        <div class="field" style="margin-bottom:0">
+          <label for="markup">Markup <span class="mv" id="mv">1.7&times;</span></label>
+          <input type="range" id="markup" min="1" max="3" step="0.01" value="1.7">
+          <div class="scale"><span>1.0&times;</span><span>3.0&times;</span></div>
+        </div>
+      </div>
+      <div id="markupComputedWrap" style="display:none;margin-bottom:9px">
+        <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px">Markup <span style="font-size:9px;text-transform:none;letter-spacing:0">(computed)</span></div>
+        <div class="markup-computed" id="markupComputed">&mdash;</div>
+        <div class="markup-note">Back-solved: (list &times; 0.45) &divide; (cost + freight)</div>
+      </div>
+
       <div class="three">
-        <div class="field" id="freightField">
+        <div class="field">
           <label for="freight">Freight</label>
           <div class="inp"><span class="pre">$</span><input type="number" id="freight" value="50" min="0" step="any"></div>
-          <div class="waived" id="waived" style="display:none">Free freight &mdash; cost over $2,500</div>
         </div>
         <div class="field">
           <label for="tier">Discount Tier</label>
@@ -223,7 +257,7 @@
 
     <div>
       <div class="stats">
-        <div class="stat hero"><div class="k" id="heroLabel">Item List</div><div class="v" id="heroVal">$0.00</div></div>
+        <div class="stat hero"><div class="k">Item List</div><div class="v" id="heroVal">$0.00</div></div>
         <div class="stat"><div class="k">Loaded Cost</div><div class="v" id="loaded">$0.00</div></div>
         <div class="stat"><div class="k">Dealer Net <span id="netTier" style="color:var(--teal)"></span></div><div class="v" id="net">$0.00</div></div>
         <div class="stat"><div class="k">Item Margin</div><div class="v"><span class="pill" id="itemMargin">0%</span></div></div>
@@ -282,7 +316,7 @@
     <div class="inp"><input type="email" id="email" placeholder="name@krowne.com"></div>
     <button class="btn" id="emailBtn">Email Summary</button>
   </div>
-  <div class="hint">Effective margin = (total ext. net &minus; total loaded cost) &divide; total ext. net &nbsp;&bull;&nbsp; Item List = (landed cost + freight) &times; markup &divide; 0.45 &nbsp;&bull;&nbsp; Free freight on landed cost &gt; $2,500.</div>
+  <div class="hint">Effective margin = (total ext. net &minus; total loaded cost) &divide; total ext. net &nbsp;&bull;&nbsp; Normal: List = (cost + freight) &times; markup &divide; 0.45 &nbsp;&bull;&nbsp; Markup dependent: markup back-solved from published list &amp; cost.</div>
 </div>
 
 <script>
@@ -300,7 +334,7 @@
     {key:'50/10/10',    factor:0.405},
     {key:'50/10/10/10', factor:0.3645}
   ];
-  var DEFAULT_TIER='50/10', THRESH=2500;
+  var DEFAULT_TIER='50/10';
   function tierFactor(k){var t=TIERS.find(function(x){return x.key===k;});return t?t.factor:0.45;}
 
   var fmt=function(n){return isFinite(n)?'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):'$0.00';};
@@ -309,15 +343,22 @@
   function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m];});}
   function marginClass(m){return m>=0.50?'green':(m>=0.20?'yellow':'red');}
 
-  /* Item List = (landedCost + effFreight) * markup / 0.45 */
+  /* derive() - no free-freight logic
+     Normal:    list = (cost + freight) * markup / 0.45
+     Dep var:   list is fixed; markup back-solved = list * 0.45 / (cost + freight) */
   function derive(it){
-    var cost=+it.cost||0, markup=+it.markup||0, freight=+it.freight||0;
-    var free=cost>THRESH, effFreight=free?0:freight;
-    var loaded=cost+effFreight;
-    var list=(loaded*markup)/0.45;
-    var net=list*tierFactor(it.tier);
-    var margin=net>0?(net-loaded)/net:NaN;
-    return {cost:cost,markup:markup,freight:freight,free:free,list:list,loaded:loaded,net:net,margin:margin};
+    var cost=+it.cost||0, markup=+it.markup||0, freight=+it.freight||0, list=+it.list||0;
+    var loaded=cost+freight;
+    if(it.markupDep){
+      var bsMarkup=loaded>0?(list*0.45)/loaded:0;
+      var net=list*tierFactor(it.tier);
+      var margin=net>0?(net-loaded)/net:NaN;
+      return {cost:cost,markup:bsMarkup,freight:freight,list:list,loaded:loaded,net:net,margin:margin,markupDep:true};
+    }
+    var computedList=(loaded*markup)/0.45;
+    var net2=computedList*tierFactor(it.tier);
+    var margin2=net2>0?(net2-loaded)/net2:NaN;
+    return {cost:cost,markup:markup,freight:freight,list:computedList,loaded:loaded,net:net2,margin:margin2,markupDep:false};
   }
 
   (function(){
@@ -326,39 +367,53 @@
     document.getElementById('bulkTier').innerHTML=opts; document.getElementById('bulkTier').value=DEFAULT_TIER;
   })();
 
-  var mode='list', lastCost=0, lastList=0, editingId=null;
+  var mode='list', lastCost=0, lastList=0, editingId=null, markupDepMode=false;
+
+  document.getElementById('markupDep').addEventListener('change',function(){
+    markupDepMode=this.checked;
+    document.getElementById('markupSliderWrap').style.display=markupDepMode?'none':'block';
+    document.getElementById('markupComputedWrap').style.display=markupDepMode?'block':'none';
+    document.getElementById('driverWrap').style.display=markupDepMode?'none':'block';
+    document.getElementById('dualWrap').style.display=markupDepMode?'grid':'none';
+    document.getElementById('segWrap').style.display=markupDepMode?'none':'block';
+    renderEditor();
+  });
 
   function editorState(){
-    var markup=num('markup'), freight=num('freight'), driver=num('driver'), cost, list;
-    var free=driver>THRESH, effFreight=free?0:freight;
+    var freight=num('freight'), tier=document.getElementById('tier').value;
+    if(markupDepMode){
+      var cost=num('dualCost'), list=num('dualList');
+      var loaded=cost+freight;
+      var markup=loaded>0?(list*0.45)/loaded:0;
+      return {cost:cost,markup:markup,freight:freight,list:list,tier:tier,markupDep:true};
+    }
+    var markup=num('markup'), driver=num('driver'), cost, list;
     if(mode==='cost'){
       list=driver;
-      cost=markup?(list*0.45)/markup-effFreight:0; cost=Math.max(0,cost);
+      cost=markup?(list*0.45)/markup-freight:0; cost=Math.max(0,cost);
     } else {
       cost=driver;
-      list=((cost+effFreight)*markup)/0.45;
+      list=((cost+freight)*markup)/0.45;
     }
-    return {cost:cost,markup:markup,freight:freight,list:list,tier:document.getElementById('tier').value};
+    return {cost:cost,markup:markup,freight:freight,list:list,tier:tier,markupDep:false};
   }
 
   function renderEditor(){
-    var markup=num('markup'), driver=num('driver'), freight=num('freight');
-    document.getElementById('mv').innerHTML=markup.toFixed(1)+'&times;';
-    document.getElementById('markup').style.setProperty('--pct',((markup-1)/2*100)+'%');
-
-    var free=driver>THRESH;
-    document.getElementById('freightField').classList.toggle('disabled',free);
-    document.getElementById('freight').disabled=free;
-    document.getElementById('waived').style.display=free?'block':'none';
-
     var st=editorState();
     lastCost=st.cost; lastList=st.list;
-    var loaded=st.cost+(free?0:freight);
+    var loaded=st.cost+st.freight;
 
-    if(mode==='cost'){document.getElementById('heroLabel').textContent='Landed Cost';document.getElementById('heroVal').textContent=fmt(st.cost);}
-    else{document.getElementById('heroLabel').textContent='Item List';document.getElementById('heroVal').textContent=fmt(st.list);}
+    if(markupDepMode){
+      var bs=loaded>0?(st.list*0.45)/loaded:0;
+      document.getElementById('markupComputed').textContent=(isFinite(bs)&&bs>0)?bs.toFixed(4)+'\u00d7':'\u2014';
+    } else {
+      var markup=num('markup');
+      document.getElementById('mv').innerHTML=markup.toFixed(1)+'&times;';
+      document.getElementById('markup').style.setProperty('--pct',((markup-1)/2*100)+'%');
+    }
+
+    document.getElementById('heroVal').textContent=fmt(st.list);
     document.getElementById('loaded').textContent=fmt(loaded);
-
     var net=st.list*tierFactor(st.tier);
     var margin=net>0?(net-loaded)/net:NaN;
     document.getElementById('netTier').textContent=st.tier;
@@ -372,7 +427,7 @@
   }
 
   function setMode(m){
-    if(m===mode) return;
+    if(m===mode||markupDepMode) return;
     document.getElementById('driver').value=(m==='cost'?lastList:lastCost).toFixed(2);
     mode=m;
     document.getElementById('driverLabel').textContent=(m==='cost'?'Item List':'Landed Cost');
@@ -381,7 +436,9 @@
     renderEditor();
   }
   document.querySelectorAll('#seg .segbtn').forEach(function(b){b.addEventListener('click',function(){setMode(b.getAttribute('data-mode'));});});
-  ['driver','markup','freight','tier'].forEach(function(id){document.getElementById(id).addEventListener('input',renderEditor);});
+  ['driver','markup','freight','tier','dualCost','dualList'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.addEventListener('input',renderEditor);
+  });
 
   var items=[], seq=1;
 
@@ -392,11 +449,13 @@
       partNumber:document.getElementById('partNumber').value.trim(),
       description:document.getElementById('description').value.trim(),
       link:document.getElementById('itemLink').value.trim(),
-      cost:+st.cost.toFixed(2),
-      markup:st.markup,
+      cost:+st.cost.toFixed(4),
+      markup:+st.markup.toFixed(4),
       freight:st.freight,
       tier:st.tier,
-      qty:Math.max(1,Math.round(num('qty'))||1)
+      qty:Math.max(1,Math.round(num('qty'))||1),
+      list:markupDepMode?+st.list.toFixed(2):0,
+      markupDep:markupDepMode
     };
     if(editingId){
       var i=items.findIndex(function(x){return x.id===editingId;});
@@ -415,16 +474,33 @@
     document.getElementById('description').value=it.description;
     document.getElementById('itemLink').value=it.link||'';
     document.getElementById('tier').value=it.tier;
-    document.getElementById('markup').value=it.markup;
     document.getElementById('freight').value=it.freight;
     document.getElementById('qty').value=it.qty||1;
-    if(mode!=='list'){
-      mode='list';
-      document.getElementById('driverLabel').textContent='Landed Cost';
-      document.getElementById('variantHint').innerHTML='Landed Cost &rarr; List';
-      document.querySelectorAll('#seg .segbtn').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-mode')==='list');});
+    if(it.markupDep){
+      document.getElementById('markupDep').checked=true; markupDepMode=true;
+      document.getElementById('markupSliderWrap').style.display='none';
+      document.getElementById('markupComputedWrap').style.display='block';
+      document.getElementById('driverWrap').style.display='none';
+      document.getElementById('dualWrap').style.display='grid';
+      document.getElementById('segWrap').style.display='none';
+      document.getElementById('dualCost').value=it.cost;
+      document.getElementById('dualList').value=it.list||0;
+    } else {
+      document.getElementById('markupDep').checked=false; markupDepMode=false;
+      document.getElementById('markupSliderWrap').style.display='block';
+      document.getElementById('markupComputedWrap').style.display='none';
+      document.getElementById('driverWrap').style.display='block';
+      document.getElementById('dualWrap').style.display='none';
+      document.getElementById('segWrap').style.display='block';
+      document.getElementById('markup').value=it.markup;
+      if(mode!=='list'){
+        mode='list';
+        document.getElementById('driverLabel').textContent='Landed Cost';
+        document.getElementById('variantHint').innerHTML='Landed Cost &rarr; List';
+        document.querySelectorAll('#seg .segbtn').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-mode')==='list');});
+      }
+      document.getElementById('driver').value=it.cost;
     }
-    document.getElementById('driver').value=it.cost;
     document.getElementById('editorTitle').textContent='Item Calculator \u2014 Editing '+(it.partNumber||'item');
     document.getElementById('addBtn').textContent='Update Item';
     document.getElementById('cancelBtn').style.display='inline-block';
@@ -449,19 +525,20 @@
       tb.innerHTML='<tr><td colspan="10" class="empty">No items yet. Build an item above and click \u201cAdd to BOM\u201d, or import a CSV.</td></tr>';
     } else {
       tb.innerHTML=items.map(function(it,idx){
-        var d=derive(it);
-        var qty=Math.max(1,+it.qty||1);
-        var extNet=d.net*qty;
+        var d=derive(it); var qty=Math.max(1,+it.qty||1); var extNet=d.net*qty;
         totList+=d.list*qty; totNet+=extNet; totCost+=d.loaded*qty;
         var pnCell=it.link
           ? '<a href="'+esc(it.link)+'" target="_blank" rel="noopener" style="color:var(--teal);text-decoration:none;font-weight:700">'+esc(it.partNumber||'\u2014')+'</a>'
           : '<span style="font-weight:700">'+esc(it.partNumber||'\u2014')+'</span>';
+        var mkupDisplay=d.markupDep
+          ? '<span style="color:var(--teal);font-size:10.5px" title="back-solved">\u2248'+d.markup.toFixed(2)+'\u00d7</span>'
+          : d.markup.toFixed(1)+'\u00d7';
         return '<tr>'+
           '<td class="l" style="color:var(--text-dim);font-size:11px;width:28px">'+(idx+1)+'</td>'+
           '<td class="l">'+pnCell+'<div class="desc">'+esc(it.description)+'</div></td>'+
           '<td><input class="qtyinp" type="number" min="1" step="1" value="'+qty+'" data-qty="'+it.id+'"></td>'+
-          '<td>'+fmt(d.cost)+(d.free?' *':'')+'</td>'+
-          '<td>'+d.markup.toFixed(1)+'\u00d7</td>'+
+          '<td>'+fmt(d.cost)+'</td>'+
+          '<td>'+mkupDisplay+'</td>'+
           '<td>'+fmt(d.list)+'</td>'+
           '<td><span class="tagt">'+it.tier+'</span></td>'+
           '<td>'+fmt(extNet)+'</td>'+
@@ -478,7 +555,6 @@
     document.getElementById('totCost').textContent=fmt(totCost);
     var qtot=items.reduce(function(s,x){return s+Math.max(1,+x.qty||1);},0);
     document.getElementById('itemCount').textContent=items.length?(items.length+' line'+(items.length>1?'s':'')+' \u00b7 '+qtot+' unit'+(qtot>1?'s':'')):'';
-
     tb.querySelectorAll('[data-edit]').forEach(function(b){b.addEventListener('click',function(){editItem(+b.getAttribute('data-edit'));});});
     tb.querySelectorAll('[data-del]').forEach(function(b){b.addEventListener('click',function(){removeItem(+b.getAttribute('data-del'));});});
     tb.querySelectorAll('[data-qty]').forEach(function(inp){
@@ -491,8 +567,7 @@
 
   document.getElementById('applyAll').addEventListener('click',function(){
     var t=document.getElementById('bulkTier').value;
-    items.forEach(function(it){it.tier=t;});
-    renderBOM();
+    items.forEach(function(it){it.tier=t;}); renderBOM();
   });
   document.getElementById('clearBtn').addEventListener('click',function(){
     if(items.length&&!confirm('Clear all BOM items?'))return;
@@ -501,17 +576,16 @@
 
   function csvCell(v){v=String(v==null?'':v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
   document.getElementById('exportBtn').addEventListener('click',function(){
-    var head=['Part Number','Description','Link','Qty','Landed Cost','Markup','Freight','Tier','Item List','Unit Net','Ext Net','Margin %'];
+    var head=['Part Number','Description','Link','Qty','Landed Cost','Markup','Freight','Tier','Item List','Unit Net','Ext Net','Margin %','Markup Dep'];
     var rows=items.map(function(it){
       var d=derive(it); var qty=Math.max(1,+it.qty||1);
-      return [it.partNumber,it.description,it.link||'',qty,d.cost.toFixed(2),d.markup,d.freight,it.tier,
+      return [it.partNumber,it.description,it.link||'',qty,d.cost.toFixed(2),d.markup.toFixed(4),d.freight,it.tier,
               d.list.toFixed(2),d.net.toFixed(2),(d.net*qty).toFixed(2),
-              (isFinite(d.margin)?(d.margin*100).toFixed(1):'')].map(csvCell).join(',');
+              (isFinite(d.margin)?(d.margin*100).toFixed(1):''),it.markupDep?'Y':''].map(csvCell).join(',');
     });
     var csv=[head.map(csvCell).join(',')].concat(rows).join('\r\n');
     var blob=new Blob([csv],{type:'text/csv'});
-    var a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
+    var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
     var proj=document.getElementById('project').value.trim();
     var safe=proj?proj.replace(/[^a-z0-9_\- ]/gi,'').replace(/\s+/g,'_').toLowerCase():'krowne_bom';
     a.download=safe+'.csv'; a.click(); URL.revokeObjectURL(a.href);
@@ -547,12 +621,15 @@
         var iT=idx(['tier','discount tier','discount']);
         var iQ=idx(['qty','quantity','qoh','count']);
         var iL=idx(['link','url','product link','product url']);
+        var iMD=idx(['markup dep','markupdep','dependent']);
+        var iIL=idx(['item list']);
         var validTier=function(t){t=(t||'').trim();return TIERS.some(function(x){return x.key===t;})?t:DEFAULT_TIER;};
         var added=0;
         for(var r=1;r<rows.length;r++){
           var c=rows[r];
           var cost=parseFloat((iC>=0?c[iC]:'')||'')||0;
           if(!cost&&!(iPN>=0&&c[iPN]))continue;
+          var isMD=(iMD>=0&&(c[iMD]||'').trim().toLowerCase()==='y');
           items.push({
             id:seq++,
             partNumber:(iPN>=0?c[iPN]:'').trim(),
@@ -562,12 +639,13 @@
             markup:parseFloat((iM>=0?c[iM]:'')||'')||1.7,
             freight:parseFloat((iF>=0?c[iF]:'')||'')||0,
             tier:validTier(iT>=0?c[iT]:''),
-            qty:Math.max(1,Math.round(parseFloat((iQ>=0?c[iQ]:'')||'')||1))
+            qty:Math.max(1,Math.round(parseFloat((iQ>=0?c[iQ]:'')||'')||1)),
+            list:parseFloat((iIL>=0?c[iIL]:'')||'')||0,
+            markupDep:isMD
           });
           added++;
         }
-        renderBOM();
-        alert('Imported '+added+' item'+(added===1?'':'s')+'.');
+        renderBOM(); alert('Imported '+added+' item'+(added===1?'':'s')+'.');
       }catch(ex){alert('Could not parse CSV: '+ex.message);}
       e.target.value='';
     };
@@ -582,7 +660,8 @@
       var d=derive(it); var qty=Math.max(1,+it.qty||1);
       totNet+=d.net*qty; totCost+=d.loaded*qty; totList+=d.list*qty;
       return (i+1)+'. '+(it.partNumber||'(no PN)')+' \u2014 '+(it.description||'')+' (Qty '+qty+')'+
-        '\n   Item List '+fmt(d.list)+' | Tier '+it.tier+' | Ext Net '+fmt(d.net*qty)+' | Margin '+pct(d.margin)+
+        '\n   Item List '+fmt(d.list)+' | Markup '+d.markup.toFixed(2)+'\u00d7'+(d.markupDep?' [dep]':'')+
+        ' | Tier '+it.tier+' | Ext Net '+fmt(d.net*qty)+' | Margin '+pct(d.margin)+
         (it.link?'\n   '+it.link:'');
     }).join('\n');
     var eff=totNet>0?(totNet-totCost)/totNet:NaN;
@@ -592,8 +671,7 @@
       '\nTotal Item List:   '+fmt(totList)+
       '\nTotal Ext. Net:    '+fmt(totNet)+
       '\nTotal Loaded Cost: '+fmt(totCost)+
-      '\nEFFECTIVE MARGIN:  '+pct(eff)+
-      '\n\nItems: '+items.length;
+      '\nEFFECTIVE MARGIN:  '+pct(eff)+'\n\nItems: '+items.length;
     var subject=(proj?proj+' \u2014 ':'')+'Krowne BOM \u2014 Effective Margin '+pct(eff);
     window.location.href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
   });
