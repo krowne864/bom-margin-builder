@@ -9,31 +9,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{--teal:#01A79D;--teal-dim:#018a82;--red:#AD1F23;}
-  [data-theme="dark"]{
-    --bg:#1b1b1b;--panel:#282828;--panel-2:#1f1f1f;--line:#3a3a3a;--text:#F1F2F2;--text-dim:#9a9a9a;
-    --input-bg:#1f1f1f;--wav:0.16;--shadow:0 14px 38px rgba(0,0,0,.5);--disabled:#2a2a2a;
-  }
-  [data-theme="light"]{
-    --bg:#F1F2F2;--panel:#FFFFFF;--panel-2:#F6F7F7;--line:#e3e4e5;--text:#282828;--text-dim:#6f6f6f;
-    --input-bg:#F6F7F7;--wav:0.09;--shadow:0 10px 30px rgba(40,40,40,.12);--disabled:#eef0f0;
-  }
+  [data-theme="dark"]{--bg:#1b1b1b;--panel:#282828;--panel-2:#1f1f1f;--line:#3a3a3a;--text:#F1F2F2;--text-dim:#9a9a9a;--input-bg:#1f1f1f;--wav:0.16;--shadow:0 14px 38px rgba(0,0,0,.5);--disabled:#2a2a2a;}
+  [data-theme="light"]{--bg:#F1F2F2;--panel:#FFFFFF;--panel-2:#F6F7F7;--line:#e3e4e5;--text:#282828;--text-dim:#6f6f6f;--input-bg:#F6F7F7;--wav:0.09;--shadow:0 10px 30px rgba(40,40,40,.12);--disabled:#eef0f0;}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);
-    min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:22px;
-    transition:background .4s,color .4s;position:relative;overflow-x:hidden}
+  body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:22px;transition:background .4s,color .4s;position:relative;overflow-x:hidden}
   .wavical{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:var(--wav);transition:opacity .4s}
-  .app{position:relative;z-index:1;width:100%;max-width:1100px;background:var(--panel);border:1px solid var(--line);
-    border-radius:14px;box-shadow:var(--shadow);padding:14px 20px}
+  .app{position:relative;z-index:1;width:100%;max-width:1100px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px 20px}
   header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:11px;flex-wrap:wrap}
   .kl-logo{height:46px;width:auto;flex:none}
-  .projinp{flex:1;min-width:160px;max-width:280px;background:var(--input-bg);border:1px solid var(--line);border-radius:8px;
-    color:var(--text);font-family:'Jost',sans-serif;font-weight:600;font-size:13px;letter-spacing:.04em;padding:9px 12px;text-align:center}
+  .projinp{flex:1;min-width:160px;max-width:280px;background:var(--input-bg);border:1px solid var(--line);border-radius:8px;color:var(--text);font-family:'Jost',sans-serif;font-weight:600;font-size:13px;letter-spacing:.04em;padding:9px 12px;text-align:center}
   .projinp:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(1,167,157,.18)}
   .hdr-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   .hdr-ref{display:flex;flex-direction:column;gap:2px}
   .hdr-ref label{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);font-weight:700;line-height:1}
-  .hdr-ref input{width:108px;background:var(--input-bg);border:1px solid var(--line);border-radius:7px;color:var(--text);
-    font-family:'Jost',sans-serif;font-weight:500;font-size:12px;padding:6px 9px}
+  .hdr-ref input{width:108px;background:var(--input-bg);border:1px solid var(--line);border-radius:7px;color:var(--text);font-family:'Jost',sans-serif;font-weight:500;font-size:12px;padding:6px 9px}
   .hdr-ref input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 2px rgba(1,167,157,.15)}
   .hdr-ref input::placeholder{color:var(--text-dim);font-weight:400;font-size:11px}
   .theme-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;flex:none;user-select:none}
@@ -50,13 +39,11 @@
   .editor{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
   @media(max-width:720px){.editor{grid-template-columns:1fr;gap:14px}}
   .field{margin-bottom:9px}
-  .field label{display:flex;justify-content:space-between;align-items:baseline;font-size:10px;letter-spacing:.1em;
-    text-transform:uppercase;color:var(--text-dim);margin-bottom:4px}
+  .field label{display:flex;justify-content:space-between;align-items:baseline;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px}
   .field label .mv{font-family:'Jost',sans-serif;font-weight:600;font-size:12.5px;color:var(--teal);letter-spacing:0}
   .inp{position:relative}
   .inp .pre{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:13px}
-  input,select{width:100%;background:var(--input-bg);border:1px solid var(--line);border-radius:8px;color:var(--text);
-    font-family:inherit;font-size:13.5px;font-weight:500;padding:8px 11px;transition:border .2s,box-shadow .2s,opacity .3s}
+  input,select{width:100%;background:var(--input-bg);border:1px solid var(--line);border-radius:8px;color:var(--text);font-family:inherit;font-size:13.5px;font-weight:500;padding:8px 11px;transition:border .2s,box-shadow .2s,opacity .3s}
   input[type=number]{padding-left:25px;-moz-appearance:textfield}
   input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   input[type=text],input[type=email]{font-size:13px;font-weight:400}
@@ -67,16 +54,14 @@
   .seg{display:flex;gap:6px;background:var(--input-bg);border:1px solid var(--line);border-radius:8px;padding:3px}
   .segbtn{flex:1;border:none;background:transparent;color:var(--text-dim);font-family:'Jost',sans-serif;font-weight:600;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:7px 4px;border-radius:6px;cursor:pointer;transition:background .2s,color .2s}
   .segbtn.active{background:var(--teal);color:#fff}
-  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:5px;padding:0;
-    background:linear-gradient(90deg,var(--teal) var(--pct,35%),var(--line) var(--pct,35%));outline:none;margin-top:4px}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:5px;padding:0;background:linear-gradient(90deg,var(--teal) var(--pct,35%),var(--line) var(--pct,35%));outline:none;margin-top:4px}
   input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:var(--teal);border:2px solid var(--panel);box-shadow:0 1px 4px rgba(0,0,0,.3);cursor:pointer}
   input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--teal);border:2px solid var(--panel);cursor:pointer}
   .scale{display:flex;justify-content:space-between;font-size:9px;color:var(--text-dim);margin-top:4px;letter-spacing:.05em}
   .markup-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
   .markup-row .chk-wrap{display:flex;align-items:center;gap:6px;flex:none;white-space:nowrap;cursor:pointer;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)}
   .markup-row .chk-wrap input[type=checkbox]{width:14px;height:14px;accent-color:var(--teal);cursor:pointer;margin:0;padding:0;border:none;background:none}
-  .markup-computed{font-family:'Jost',sans-serif;font-weight:700;font-size:16px;color:var(--teal);padding:8px 12px;
-    background:var(--input-bg);border:1px dashed var(--teal);border-radius:8px;text-align:center;letter-spacing:.04em}
+  .markup-computed{font-family:'Jost',sans-serif;font-weight:700;font-size:16px;color:var(--teal);padding:8px 12px;background:var(--input-bg);border:1px dashed var(--teal);border-radius:8px;text-align:center;letter-spacing:.04em}
   .markup-note{font-size:9px;color:var(--text-dim);margin-top:3px;letter-spacing:.03em}
   .dual{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .stats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
@@ -97,8 +82,7 @@
   .pill.yellow{background:rgba(224,138,0,.16);color:#e08a00}
   .pill.red{background:rgba(173,31,35,.16);color:var(--red)}
   .tagt{display:inline-block;padding:2px 8px;border-radius:6px;background:rgba(1,167,157,.14);color:var(--teal);font-size:10.5px;font-weight:600;font-family:'Jost',sans-serif;letter-spacing:.03em}
-  .btn{background:var(--teal);color:#fff;border:none;border-radius:8px;font-family:'Jost',sans-serif;font-weight:600;
-    font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:9px 14px;cursor:pointer;white-space:nowrap;transition:background .2s,opacity .2s}
+  .btn{background:var(--teal);color:#fff;border:none;border-radius:8px;font-family:'Jost',sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:9px 14px;cursor:pointer;white-space:nowrap;transition:background .2s,opacity .2s}
   .btn:hover{background:var(--teal-dim)}
   .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text-dim)}
   .btn.ghost:hover{border-color:var(--teal);color:var(--teal);background:transparent}
@@ -130,8 +114,7 @@
   .irow{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
   .irow .if{display:flex;flex-direction:column;gap:3px}
   .irow .if label{font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);font-weight:600}
-  .irow .if input,.irow .if select{background:var(--input-bg);border:1px solid var(--line);border-radius:7px;color:var(--text);
-    font-family:'Jost',sans-serif;font-size:12px;font-weight:500;padding:6px 10px;width:auto}
+  .irow .if input,.irow .if select{background:var(--input-bg);border:1px solid var(--line);border-radius:7px;color:var(--text);font-family:'Jost',sans-serif;font-size:12px;font-weight:500;padding:6px 10px;width:auto}
   .irow .if input[type=number]{padding-left:22px}
   .irow .if input:focus,.irow .if select:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 2px rgba(1,167,157,.15)}
   .irow .if .pre2{position:relative;display:inline-block}
@@ -215,12 +198,8 @@
         <input type="text" id="itemLink" placeholder="https://krowne.com/product-showcase/...">
       </div>
       <div class="markup-row">
-        <label class="chk-wrap" title="Enter both cost and list — markup is back-solved automatically">
-          <input type="checkbox" id="markupDep"> Markup = dependent variable
-        </label>
-        <label class="chk-wrap" title="Include as install line — enter install cost" style="margin-left:14px">
-          <input type="checkbox" id="isInstall"> Mark as Install
-        </label>
+        <label class="chk-wrap" title="Enter both cost and list — markup is back-solved automatically"><input type="checkbox" id="markupDep"> Markup = dependent variable</label>
+        <label class="chk-wrap" title="Include as install line — enter install cost" style="margin-left:14px"><input type="checkbox" id="isInstall"> Mark as Install</label>
       </div>
       <div class="field" id="segWrap">
         <label id="segLabel">Variant <span class="mv" id="variantHint">Landed Cost &rarr; List</span></label>
@@ -275,7 +254,6 @@
   </div>
 
   <div class="divider"></div>
-
   <div class="sec row"><span>Bill of Materials</span><span class="lbl" id="itemCount"></span></div>
   <div class="toolbar">
     <div class="grp"><span class="lbl">Set tier for all</span><select id="bulkTier"></select><button class="btn sm" id="applyAll">Apply</button></div>
@@ -296,11 +274,7 @@
   <div class="bomwrap">
     <table class="bom">
       <thead>
-        <tr>
-          <th class="l">#</th><th class="l">Part / Description</th>
-          <th>Qty</th><th>Landed Cost</th><th>Freight</th><th>Markup</th><th>Item List</th>
-          <th>Tier</th><th>Ext. Net</th><th>Margin</th><th></th>
-        </tr>
+        <tr><th class="l">#</th><th class="l">Part / Description</th><th>Qty</th><th>Landed Cost</th><th>Freight</th><th>Markup</th><th>Item List</th><th>Tier</th><th>Ext. Net</th><th>Margin</th><th></th></tr>
       </thead>
       <tbody id="bomRows"></tbody>
     </table>
@@ -313,7 +287,6 @@
     <div class="tstat"><div class="k">Total Loaded Cost</div><div class="v" id="totCost">$0.00</div></div>
     <div class="tstat"><div class="k">Total Net w/ Install</div><div class="v" id="totNetInstall">$0.00</div></div>
   </div>
-
   <div class="emailbar">
     <div class="inp"><input type="email" id="email" placeholder="name@krowne.com"></div>
     <button class="btn" id="emailBtn">Email Summary</button>
@@ -322,16 +295,9 @@
 </div>
 
 <script>
-  document.getElementById('toggleWrap').addEventListener('click',function(){
-    var h=document.documentElement;
-    h.setAttribute('data-theme',h.getAttribute('data-theme')==='dark'?'light':'dark');
-  });
+  document.getElementById('toggleWrap').addEventListener('click',function(){var h=document.documentElement;h.setAttribute('data-theme',h.getAttribute('data-theme')==='dark'?'light':'dark');});
 
-  var TIERS=[
-    {key:'50/5',factor:0.475},{key:'50/10',factor:0.45},{key:'50/10/5',factor:0.4275},
-    {key:'50/10/7',factor:0.4185},{key:'50/10/8',factor:0.414},{key:'50/10/10',factor:0.405},
-    {key:'50/10/10/10',factor:0.3645}
-  ];
+  var TIERS=[{key:'50/5',factor:0.475},{key:'50/10',factor:0.45},{key:'50/10/5',factor:0.4275},{key:'50/10/7',factor:0.4185},{key:'50/10/8',factor:0.414},{key:'50/10/10',factor:0.405},{key:'50/10/10/10',factor:0.3645}];
   var DEFAULT_TIER='50/10';
   function tierFactor(k){var t=TIERS.find(function(x){return x.key===k;});return t?t.factor:0.45;}
   var fmt=function(n){return isFinite(n)?'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):'$0.00';};
@@ -363,51 +329,27 @@
     return {list:uL,loaded:uLd,net:uN,extNet:eN,extList:eL,extLoaded:eLd,margin:eN>0?(eN-eLd)/eN:NaN,markup:uLd>0?(uL*0.45)/uLd:0,unitList:uL,unitLoaded:uLd,unitNet:uN};
   }
 
-  (function(){
-    var opts=TIERS.map(function(t){return '<option value="'+t.key+'">'+t.key+'</option>';}).join('');
-    document.getElementById('tier').innerHTML=opts; document.getElementById('tier').value=DEFAULT_TIER;
-    document.getElementById('bulkTier').innerHTML=opts; document.getElementById('bulkTier').value=DEFAULT_TIER;
-  })();
+  (function(){var opts=TIERS.map(function(t){return '<option value="'+t.key+'">'+t.key+'</option>';}).join('');document.getElementById('tier').innerHTML=opts;document.getElementById('tier').value=DEFAULT_TIER;document.getElementById('bulkTier').innerHTML=opts;document.getElementById('bulkTier').value=DEFAULT_TIER;})();
 
   var mode='list',lastCost=0,lastList=0,editingId=null,markupDepMode=false,installMode=false;
   var inlineEditState={};
 
   function applyInstallMode(on){
-    installMode=on;
-    if(on){markupDepMode=false;document.getElementById('markupDep').checked=false;}
+    installMode=on;if(on){markupDepMode=false;document.getElementById('markupDep').checked=false;}
     document.getElementById('installBtn').style.display=on?'flex':'none';
     document.querySelectorAll('#seg .segbtn:not(#installBtn)').forEach(function(b){b.style.display=on?'none':'flex';});
     document.getElementById('markupSliderWrap').style.display=(on||markupDepMode)?'none':'block';
     document.getElementById('markupComputedWrap').style.display=markupDepMode?'block':'none';
     document.getElementById('dualWrap').style.display=markupDepMode?'grid':'none';
-    document.getElementById('driverWrap').style.display='block';
-    document.getElementById('segWrap').style.display='block';
-    if(on){
-      document.querySelectorAll('#seg .segbtn').forEach(function(b){b.classList.remove('active');});
-      document.getElementById('installBtn').classList.add('active');
-      document.getElementById('segLabel').innerHTML='Install';
-      var vh=document.getElementById('variantHint');if(vh)vh.innerHTML='';
-      document.getElementById('driverLabel').textContent='Install Cost';
-    } else {
-      document.getElementById('installBtn').classList.remove('active');
-      document.getElementById('segLabel').innerHTML='Variant <span class="mv"><span id="variantHint">Landed Cost &rarr; List</span></span>';
-      document.getElementById('driverLabel').textContent=(mode==='cost'?'Item List':'Landed Cost');
-    }
+    document.getElementById('driverWrap').style.display='block';document.getElementById('segWrap').style.display='block';
+    if(on){document.querySelectorAll('#seg .segbtn').forEach(function(b){b.classList.remove('active');});document.getElementById('installBtn').classList.add('active');document.getElementById('segLabel').innerHTML='Install';var vh=document.getElementById('variantHint');if(vh)vh.innerHTML='';document.getElementById('driverLabel').textContent='Install Cost';}
+    else{document.getElementById('installBtn').classList.remove('active');document.getElementById('segLabel').innerHTML='Variant <span class="mv"><span id="variantHint">Landed Cost &rarr; List</span></span>';document.getElementById('driverLabel').textContent=(mode==='cost'?'Item List':'Landed Cost');}
     renderEditor();
   }
   function applyDepMode(on){
     markupDepMode=on;
-    if(on){
-      installMode=false;document.getElementById('isInstall').checked=false;applyInstallMode(false);
-      var dv=num('driver');
-      if(mode==='cost'){var mk=num('markup'),fr=num('freight'),ic=Math.max(0,mk?(dv*0.45)/mk-fr:0);document.getElementById('dualCost').value=ic.toFixed(2);document.getElementById('dualList').value=dv.toFixed(2);}
-      else {document.getElementById('dualCost').value=dv.toFixed(2);var mk2=num('markup'),fr2=num('freight'),cL=((dv+fr2)*mk2)/0.45;if(cL>0)document.getElementById('dualList').value=cL.toFixed(2);}
-    }
-    document.getElementById('markupSliderWrap').style.display=on?'none':'block';
-    document.getElementById('markupComputedWrap').style.display=on?'block':'none';
-    document.getElementById('driverWrap').style.display=on?'none':'block';
-    document.getElementById('dualWrap').style.display=on?'grid':'none';
-    document.getElementById('segWrap').style.display=on?'none':'block';
+    if(on){installMode=false;document.getElementById('isInstall').checked=false;applyInstallMode(false);var dv=num('driver');if(mode==='cost'){var mk=num('markup'),fr=num('freight'),ic=Math.max(0,mk?(dv*0.45)/mk-fr:0);document.getElementById('dualCost').value=ic.toFixed(2);document.getElementById('dualList').value=dv.toFixed(2);}else{document.getElementById('dualCost').value=dv.toFixed(2);var mk2=num('markup'),fr2=num('freight'),cL=((dv+fr2)*mk2)/0.45;if(cL>0)document.getElementById('dualList').value=cL.toFixed(2);}}
+    document.getElementById('markupSliderWrap').style.display=on?'none':'block';document.getElementById('markupComputedWrap').style.display=on?'block':'none';document.getElementById('driverWrap').style.display=on?'none':'block';document.getElementById('dualWrap').style.display=on?'grid':'none';document.getElementById('segWrap').style.display=on?'none':'block';
     renderEditor();
   }
   document.getElementById('markupDep').addEventListener('change',function(){applyDepMode(this.checked);});
@@ -418,8 +360,7 @@
     if(installMode) return {cost:0,markup:0,freight:0,list:0,tier:tier,markupDep:false,installMode:true,installCost:num('driver')};
     if(markupDepMode){var cost=num('dualCost'),list=num('dualList'),loaded=cost+freight;return {cost:cost,markup:loaded>0?(list*0.45)/loaded:0,freight:freight,list:list,tier:tier,markupDep:true};}
     var markup=num('markup'),driver=num('driver'),cost,list;
-    if(mode==='cost'){list=driver;cost=Math.max(0,markup?(list*0.45)/markup-freight:0);}
-    else{cost=driver;list=Math.round(((cost+freight)*markup)/0.45*100)/100;}
+    if(mode==='cost'){list=driver;cost=Math.max(0,markup?(list*0.45)/markup-freight:0);}else{cost=driver;list=Math.round(((cost+freight)*markup)/0.45*100)/100;}
     return {cost:cost,markup:markup,freight:freight,list:list,tier:tier,markupDep:false};
   }
   function renderEditor(){
@@ -445,7 +386,6 @@
   ['driver','markup','freight','tier','dualCost','dualList'].forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener('input',renderEditor);});
 
   var items=[],seq=1;
-
   function kitChildren(kitId){return items.filter(function(x){return x.parentId===kitId;});}
 
   function convertToKit(id){
@@ -456,10 +396,13 @@
   }
 
   function saveInlineChild(kitId){
-    // capture current DOM values first (handles case where user never toggled anything)
-    var pnEl=document.getElementById('ic-pn');if(pnEl)inlineEditState._pn=pnEl.value;
-    var descEl=document.getElementById('ic-desc');if(descEl)inlineEditState._desc=descEl.value;
-    var linkEl=document.getElementById('ic-link');if(linkEl)inlineEditState._link=linkEl.value;
+    // Read directly from live DOM — most reliable approach
+    var pnEl=document.getElementById('ic-pn');
+    var descEl=document.getElementById('ic-desc');
+    var linkEl=document.getElementById('ic-link');
+    var pn=pnEl?pnEl.value:(inlineEditState._pn||'');
+    var desc=descEl?descEl.value:(inlineEditState._desc||'');
+    var link=linkEl?linkEl.value:(inlineEditState._link||'');
     var depMode=inlineEditState.markupDep||false;
     var imode=inlineEditState.mode||'list';
     var fr=parseFloat((document.getElementById('ic-fr')||{}).value)||0;
@@ -474,15 +417,11 @@
       if(imode==='cost'){list=parseFloat((document.getElementById('ic-driver')||{}).value)||0;cost=Math.max(0,markup?(list*0.45)/markup-fr:0);}
       else{cost=parseFloat((document.getElementById('ic-driver')||{}).value)||0;list=Math.round(((cost+fr)*markup)/0.45*100)/100;}
     }
-    var pn=inlineEditState._pn||'';
-    var desc=inlineEditState._desc||'';
-    var link=inlineEditState._link||'';
     if(!cost&&!list&&!pn){alert('Enter at least a part number and a cost or list price.');return;}
     items.push({id:seq++,parentId:kitId,isKit:false,isInstall:false,installCost:0,
       partNumber:pn.trim(),description:desc.trim(),link:link.trim(),
       cost:+cost.toFixed(4),markup:+markup.toFixed(4),freight:fr,tier:'',qty:qty,
       list:depMode?+list.toFixed(2):0,markupDep:depMode});
-    // reset for next sub-item
     inlineEditState={kitId:kitId,mode:'list',markupDep:false,_pn:'',_desc:'',_link:'',_fr:'0',_qty:'1',_driver:'',_mk:'1.7',_dc:'',_dl:''};
     renderBOM();
   }
@@ -493,18 +432,13 @@
     var st=editorState();
     var existingItem=editingId?items.find(function(x){return x.id===editingId;}):null;
     var rec={id:editingId||seq++,partNumber:document.getElementById('partNumber').value.trim(),description:document.getElementById('description').value.trim(),link:document.getElementById('itemLink').value.trim(),cost:+st.cost.toFixed(4),markup:+st.markup.toFixed(4),freight:st.freight,tier:st.tier,qty:Math.max(1,Math.round(num('qty'))||1),list:markupDepMode?+st.list.toFixed(2):0,markupDep:markupDepMode,isInstall:installMode,installCost:installMode?+(num('driver').toFixed(2)):0,isKit:existingItem?!!existingItem.isKit:false,parentId:existingItem?existingItem.parentId:null};
-    if(editingId){var i=items.findIndex(function(x){return x.id===editingId;});if(i>=0)items[i]=rec;endEdit();}
-    else items.push(rec);
+    if(editingId){var i=items.findIndex(function(x){return x.id===editingId;});if(i>=0)items[i]=rec;endEdit();}else items.push(rec);
     renderBOM();
   }
   function editItem(id){
     var it=items.find(function(x){return x.id===id;});if(!it)return;
     editingId=id;
-    document.getElementById('partNumber').value=it.partNumber;
-    document.getElementById('description').value=it.description;
-    document.getElementById('itemLink').value=it.link||'';
-    document.getElementById('freight').value=it.freight;
-    document.getElementById('qty').value=it.qty||1;
+    document.getElementById('partNumber').value=it.partNumber;document.getElementById('description').value=it.description;document.getElementById('itemLink').value=it.link||'';document.getElementById('freight').value=it.freight;document.getElementById('qty').value=it.qty||1;
     if(!it.parentId)document.getElementById('tier').value=it.tier||DEFAULT_TIER;
     if(it.isInstall){document.getElementById('isInstall').checked=true;applyInstallMode(true);document.getElementById('driver').value=(it.installCost||0).toFixed(2);}
     else if(it.markupDep){document.getElementById('markupDep').checked=true;applyDepMode(true);document.getElementById('dualCost').value=it.cost;document.getElementById('dualList').value=it.list||0;}
@@ -512,11 +446,8 @@
     var label='Item Calculator \u2014 Editing '+(it.partNumber||'item');
     if(it.parentId){var par=items.find(function(x){return x.id===it.parentId;});if(par)label='Item Calculator \u2014 Sub-item of '+(par.partNumber||'kit');}
     else if(it.isKit)label='Item Calculator \u2014 Kit: '+(it.partNumber||'');
-    document.getElementById('editorTitle').textContent=label;
-    document.getElementById('addBtn').textContent='Update Item';
-    document.getElementById('cancelBtn').style.display='inline-block';
-    renderEditor();
-    window.scrollTo({top:0,behavior:'smooth'});
+    document.getElementById('editorTitle').textContent=label;document.getElementById('addBtn').textContent='Update Item';document.getElementById('cancelBtn').style.display='inline-block';
+    renderEditor();window.scrollTo({top:0,behavior:'smooth'});
   }
   function endEdit(){editingId=null;document.getElementById('editorTitle').textContent='Item Calculator';document.getElementById('addBtn').textContent='Add to BOM';document.getElementById('cancelBtn').style.display='none';}
   function removeItem(id){items=items.filter(function(x){return x.id!==id&&x.parentId!==id;});if(editingId===id)endEdit();if(inlineEditState.kitId===id)inlineEditState={};renderBOM();}
@@ -569,13 +500,8 @@
       tb.innerHTML=html;
     }
     var eff=totNet>0?(totNet-totCost)/totNet:NaN;
-    document.getElementById('effMargin').textContent=pct(eff);
-    document.getElementById('totList').textContent=fmt(totList);
-    document.getElementById('totNet').textContent=fmt(totNet);
-    document.getElementById('totCost').textContent=fmt(totCost);
-    document.getElementById('totNetInstall').textContent=fmt(totNet+totInstall);
-    var lineCnt=topItems.length;
-    document.getElementById('itemCount').textContent=lineCnt?(lineCnt+' line'+(lineCnt>1?'s':'')+' \u00b7 '+items.length+' item'+(items.length>1?'s':'')):'';
+    document.getElementById('effMargin').textContent=pct(eff);document.getElementById('totList').textContent=fmt(totList);document.getElementById('totNet').textContent=fmt(totNet);document.getElementById('totCost').textContent=fmt(totCost);document.getElementById('totNetInstall').textContent=fmt(totNet+totInstall);
+    var lineCnt=topItems.length;document.getElementById('itemCount').textContent=lineCnt?(lineCnt+' line'+(lineCnt>1?'s':'')+' \u00b7 '+items.length+' item'+(items.length>1?'s':'')):'';
     tb.querySelectorAll('[data-kit-qty]').forEach(function(inp){inp.addEventListener('change',function(){var kid=+inp.getAttribute('data-kit-qty'),kit=items.find(function(x){return x.id===kid;});if(kit){kit.qty=Math.max(1,Math.round(+inp.value)||1);renderBOM();}});});
     tb.querySelectorAll('[data-edit]').forEach(function(b){b.addEventListener('click',function(){editItem(+b.getAttribute('data-edit'));});});
     tb.querySelectorAll('[data-del]').forEach(function(b){b.addEventListener('click',function(){removeItem(+b.getAttribute('data-del'));});});
@@ -593,7 +519,6 @@
     var h='<tr class="inline-editor-row"><td colspan="11"><div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#7c6cfa;font-weight:700;margin-bottom:6px">Adding sub-item '+label+'</div><div class="irow">';
     h+='<div class="if"><label>Part #</label><input id="ic-pn" type="text" placeholder="PN" style="width:100px" value="'+esc(_pn)+'"></div>';
     h+='<div class="if"><label>Description</label><input id="ic-desc" type="text" placeholder="Description" style="width:180px" value="'+esc(_desc)+'"></div>';
-    var mkDisplay=(parseFloat(_mk)||1.7).toFixed(2)+'\u00d7';
     if(!depMode){
       h+='<div class="if"><label>Variant</label><div class="irow-seg"><button type="button" id="ic-seg-list" class="'+(imode==='list'?'active':'')+'" data-ic-mode="list">Cost</button><button type="button" id="ic-seg-cost" class="'+(imode==='cost'?'active':'')+'" data-ic-mode="cost">List</button></div></div>';
       h+='<div class="if"><label>'+(imode==='cost'?'Item List':'Landed Cost')+'</label><div class="pre2"><span>$</span><input id="ic-driver" type="number" min="0" step="any" value="'+esc(_driver)+'" style="width:100px;padding-left:22px"></div></div>';
@@ -627,6 +552,11 @@
       var dcEl=document.getElementById('ic-dc');if(dcEl)inlineEditState._dc=dcEl.value;
       var dlEl=document.getElementById('ic-dl');if(dlEl)inlineEditState._dl=dlEl.value;
     }
+    // Persist text fields on every keystroke — ensures values survive any re-render
+    ['ic-pn','ic-desc','ic-link'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el) el.addEventListener('input',function(){inlineEditState['_'+id.replace('ic-','')]=this.value;});
+    });
     var depChk=document.getElementById('ic-dep');
     if(depChk)depChk.addEventListener('change',function(){captureInlineFields();inlineEditState.markupDep=this.checked;renderBOM();});
     document.querySelectorAll('[data-ic-mode]').forEach(function(b){b.addEventListener('click',function(){captureInlineFields();inlineEditState.mode=b.getAttribute('data-ic-mode');renderBOM();});});
@@ -658,8 +588,7 @@
       rows.push([proj,aqNum,poNum,it.isKit?'Y':'',parItemC?parItemC.partNumber:'',it.partNumber,it.description,it.link||'',qty,it.isInstall?'':d.cost.toFixed(2),it.isInstall?'':d.freight.toFixed(2),it.isInstall?'':d.markup.toFixed(4),it.isInstall?'':tierRowC,it.isInstall?'':d.list.toFixed(2),it.isInstall?'':d.net.toFixed(2),it.isInstall?(it.installCost||0).toFixed(2):(d.net*qty).toFixed(2),it.isInstall?'':(isFinite(d.margin)?(d.margin*100).toFixed(1):''),it.markupDep?'Y':'',it.isInstall?'Y':'',it.isInstall?(it.installCost||0).toFixed(2):''].map(csvCell).join(','));
     });
     var csv=[head.map(csvCell).join(',')].concat(rows).join('\r\n');
-    var blob=new Blob([csv],{type:'text/csv'});
-    var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    var blob=new Blob([csv],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);
     var safe=proj?proj.replace(/[^a-z0-9_\- ]/gi,'').replace(/\s+/g,'_').toLowerCase():'krowne_bom';
     a.download=safe+'.csv';a.click();URL.revokeObjectURL(a.href);
   });
@@ -668,30 +597,20 @@
   document.getElementById('importBtn').addEventListener('click',function(){document.getElementById('csvFile').click();});
   document.getElementById('csvFile').addEventListener('change',function(e){
     var f=e.target.files[0];if(!f)return;
-    var rawName=f.name.replace(/\.csv$/i,'').replace(/[_\-]+/g,' ').trim();
-    var projEl=document.getElementById('project');if(rawName&&!projEl.value.trim())projEl.value=rawName;
+    var rawName=f.name.replace(/\.csv$/i,'').replace(/[_\-]+/g,' ').trim();var projEl=document.getElementById('project');if(rawName&&!projEl.value.trim())projEl.value=rawName;
     var rd=new FileReader();
     rd.onload=function(){
       try{
         var rows=parseCSV(rd.result);if(!rows.length){alert('CSV looks empty.');return;}
         var head=rows[0].map(function(h){return h.trim().toLowerCase();});
         var idx=function(names){for(var n=0;n<names.length;n++){var p=head.indexOf(names[n]);if(p>=0)return p;}return -1;};
-        var iPN=idx(['part number','partnumber','part no','part#','sku']);
-        var iD=idx(['description','desc']),iC=idx(['landed cost','cost']),iM=idx(['markup']);
-        var iF=idx(['freight']),iT=idx(['tier','discount tier','discount']);
-        var iQ=idx(['qty','quantity','qoh','count']),iL=idx(['link','url','product link','product url']);
-        var iMD=idx(['markup dep','markupdep','dependent']),iINS=idx(['install','is install','isinstall']);
-        var iIC=idx(['install cost']),iIL=idx(['item list']);
-        var iAQ=idx(['aq#','aq num','aq number','aq']),iPO=idx(['po#','po num','po number','po']);
-        var iProj=idx(['project','project name']);
+        var iPN=idx(['part number','partnumber','part no','part#','sku']),iD=idx(['description','desc']),iC=idx(['landed cost','cost']),iM=idx(['markup']);
+        var iF=idx(['freight']),iT=idx(['tier','discount tier','discount']),iQ=idx(['qty','quantity','qoh','count']),iL=idx(['link','url','product link','product url']);
+        var iMD=idx(['markup dep','markupdep','dependent']),iINS=idx(['install','is install','isinstall']),iIC=idx(['install cost']),iIL=idx(['item list']);
+        var iAQ=idx(['aq#','aq num','aq number','aq']),iPO=idx(['po#','po num','po number','po']),iProj=idx(['project','project name']);
         var validTier=function(t){t=(t||'').trim();return TIERS.some(function(x){return x.key===t;})?t:DEFAULT_TIER;};
         var added=0;
-        for(var r=1;r<rows.length;r++){
-          var c=rows[r],cost=parseFloat((iC>=0?c[iC]:'')||'')||0;
-          if(!cost&&!(iPN>=0&&c[iPN]))continue;
-          items.push({id:seq++,partNumber:(iPN>=0?c[iPN]:'').trim(),description:(iD>=0?c[iD]:'').trim(),link:(iL>=0?c[iL]:'').trim(),cost:cost,markup:parseFloat((iM>=0?c[iM]:'')||'')||1.7,freight:parseFloat((iF>=0?c[iF]:'')||'')||0,tier:validTier(iT>=0?c[iT]:''),qty:Math.max(1,Math.round(parseFloat((iQ>=0?c[iQ]:'')||'')||1)),list:parseFloat((iIL>=0?c[iIL]:'')||'')||0,markupDep:(iMD>=0&&(c[iMD]||'').trim().toLowerCase()==='y'),isInstall:(iINS>=0&&(c[iINS]||'').trim().toLowerCase()==='y'),installCost:parseFloat((iIC>=0?c[iIC]:'')||'')||0,isKit:false,parentId:null});
-          added++;
-        }
+        for(var r=1;r<rows.length;r++){var c=rows[r],cost=parseFloat((iC>=0?c[iC]:'')||'')||0;if(!cost&&!(iPN>=0&&c[iPN]))continue;items.push({id:seq++,partNumber:(iPN>=0?c[iPN]:'').trim(),description:(iD>=0?c[iD]:'').trim(),link:(iL>=0?c[iL]:'').trim(),cost:cost,markup:parseFloat((iM>=0?c[iM]:'')||'')||1.7,freight:parseFloat((iF>=0?c[iF]:'')||'')||0,tier:validTier(iT>=0?c[iT]:''),qty:Math.max(1,Math.round(parseFloat((iQ>=0?c[iQ]:'')||'')||1)),list:parseFloat((iIL>=0?c[iIL]:'')||'')||0,markupDep:(iMD>=0&&(c[iMD]||'').trim().toLowerCase()==='y'),isInstall:(iINS>=0&&(c[iINS]||'').trim().toLowerCase()==='y'),installCost:parseFloat((iIC>=0?c[iIC]:'')||'')||0,isKit:false,parentId:null});added++;}
         if(iProj>=0&&rows[1]&&rows[1][iProj]){var pv=rows[1][iProj].trim();if(pv&&!document.getElementById('project').value.trim())document.getElementById('project').value=pv;}
         if(iAQ>=0&&rows[1]&&rows[1][iAQ]){var av=rows[1][iAQ].trim();if(av&&!document.getElementById('aqNum').value.trim())document.getElementById('aqNum').value=av;}
         if(iPO>=0&&rows[1]&&rows[1][iPO]){var pov=rows[1][iPO].trim();if(pov&&!document.getElementById('poNum').value.trim())document.getElementById('poNum').value=pov;}
@@ -704,8 +623,7 @@
 
   document.getElementById('emailBtn').addEventListener('click',function(){
     if(!items.length){alert('Add at least one BOM item first.');return;}
-    var to=document.getElementById('email').value.trim();
-    var totNet=0,totCost=0,totList=0,totInstall=0;
+    var to=document.getElementById('email').value.trim(),totNet=0,totCost=0,totList=0,totInstall=0;
     var emailItems=items.filter(function(x){return !x.parentId;});
     var lines=emailItems.map(function(it,i){
       var d,qty,extNet,label;
