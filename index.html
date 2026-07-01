@@ -192,7 +192,6 @@
         <input type="text" id="itemLink" placeholder="https://krowne.com/product-showcase/...">
       </div>
 
-      <!-- both checkboxes on one row -->
       <div class="markup-row">
         <label class="chk-wrap" title="Enter both cost and list — markup is back-solved automatically">
           <input type="checkbox" id="markupDep">
@@ -204,7 +203,6 @@
         </label>
       </div>
 
-      <!-- variant / install seg -->
       <div class="field" id="segWrap">
         <label id="segLabel">Variant <span class="mv" id="variantHint">Landed Cost &rarr; List</span></label>
         <div class="seg" id="seg">
@@ -214,13 +212,11 @@
         </div>
       </div>
 
-      <!-- single driver input -->
       <div class="field" id="driverWrap">
         <label for="driver" id="driverLabel">Landed Cost</label>
         <div class="inp"><span class="pre">$</span><input type="number" id="driver" value="1000" min="0" step="any"></div>
       </div>
 
-      <!-- dual inputs (markup dep var mode) -->
       <div class="dual" id="dualWrap" style="display:none">
         <div class="field">
           <label for="dualCost">Landed Cost</label>
@@ -232,7 +228,6 @@
         </div>
       </div>
 
-      <!-- markup slider -->
       <div id="markupSliderWrap" style="margin-bottom:9px">
         <div class="field" style="margin-bottom:0">
           <label for="markup">Markup <span class="mv" id="mv">1.70&times;</span></label>
@@ -240,7 +235,6 @@
           <div class="scale"><span>1.00&times;</span><span>3.00&times;</span></div>
         </div>
       </div>
-      <!-- markup computed display -->
       <div id="markupComputedWrap" style="display:none;margin-bottom:9px">
         <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px">Markup <span style="font-size:9px;text-transform:none;letter-spacing:0">(computed)</span></div>
         <div class="markup-computed" id="markupComputed">&mdash;</div>
@@ -357,7 +351,6 @@
   function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m];});}
   function marginClass(m){return m>=0.50?'green':(m>=0.20?'yellow':'red');}
 
-  /* derive: install uses installCost as net directly */
   function derive(it){
     var cost=+it.cost||0, markup=+it.markup||0, freight=+it.freight||0, list=+it.list||0;
     var loaded=cost+freight;
@@ -385,25 +378,21 @@
 
   var mode='list', lastCost=0, lastList=0, editingId=null, markupDepMode=false, installMode=false;
 
-  /* ── install mode toggle ── */
   function applyInstallMode(on){
     installMode=on;
     if(on){ markupDepMode=false; document.getElementById('markupDep').checked=false; }
-    // seg: show only install button when on, normal buttons when off
     document.getElementById('installBtn').style.display=on?'flex':'none';
     document.querySelectorAll('#seg .segbtn:not(#installBtn)').forEach(function(b){b.style.display=on?'none':'flex';});
-    // hide slider + computed + dual in install mode
     document.getElementById('markupSliderWrap').style.display=(on||markupDepMode)?'none':'block';
     document.getElementById('markupComputedWrap').style.display=markupDepMode?'block':'none';
     document.getElementById('dualWrap').style.display=markupDepMode?'grid':'none';
-    // driver always visible (cost input in all modes)
     document.getElementById('driverWrap').style.display='block';
     document.getElementById('segWrap').style.display='block';
     if(on){
       document.querySelectorAll('#seg .segbtn').forEach(function(b){b.classList.remove('active');});
       document.getElementById('installBtn').classList.add('active');
       document.getElementById('segLabel').innerHTML='Install';
-      document.getElementById('variantHint') && (document.getElementById('variantHint').innerHTML='');
+      var vh=document.getElementById('variantHint'); if(vh) vh.innerHTML='';
       document.getElementById('driverLabel').textContent='Install Cost';
     } else {
       document.getElementById('installBtn').classList.remove('active');
@@ -413,10 +402,18 @@
     renderEditor();
   }
 
-  /* ── dep var mode toggle ── */
   function applyDepMode(on){
     markupDepMode=on;
-    if(on){ installMode=false; document.getElementById('isInstall').checked=false; applyInstallMode(false); }
+    if(on){
+      installMode=false; document.getElementById('isInstall').checked=false; applyInstallMode(false);
+      // seed dual inputs from current live values so the user's work persists
+      var seedCost=lastCost>0?lastCost:num('driver');
+      var seedList=0;
+      if(mode==='cost') seedList=lastList>0?lastList:num('driver');
+      else seedList=lastList>0?lastList:0;
+      document.getElementById('dualCost').value=seedCost.toFixed(2);
+      if(seedList>0) document.getElementById('dualList').value=seedList.toFixed(2);
+    }
     document.getElementById('markupSliderWrap').style.display=on?'none':'block';
     document.getElementById('markupComputedWrap').style.display=on?'block':'none';
     document.getElementById('driverWrap').style.display=on?'none':'block';
