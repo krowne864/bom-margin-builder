@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -220,11 +220,11 @@
       <div class="dual" id="dualWrap" style="display:none">
         <div class="field">
           <label for="dualCost">Landed Cost</label>
-          <div class="inp"><span class="pre">$</span><input type="number" id="dualCost" value="1000" min="0" step="any"></div>
+          <div class="inp"><span class="pre">$</span><input type="number" id="dualCost" value="" min="0" step="any"></div>
         </div>
         <div class="field">
           <label for="dualList">Item List</label>
-          <div class="inp"><span class="pre">$</span><input type="number" id="dualList" value="3778" min="0" step="any"></div>
+          <div class="inp"><span class="pre">$</span><input type="number" id="dualList" value="" min="0" step="any"></div>
         </div>
       </div>
 
@@ -406,13 +406,21 @@
     markupDepMode=on;
     if(on){
       installMode=false; document.getElementById('isInstall').checked=false; applyInstallMode(false);
-      // seed dual inputs from current live values so the user's work persists
-      var seedCost=lastCost>0?lastCost:num('driver');
-      var seedList=0;
-      if(mode==='cost') seedList=lastList>0?lastList:num('driver');
-      else seedList=lastList>0?lastList:0;
-      document.getElementById('dualCost').value=seedCost.toFixed(2);
-      if(seedList>0) document.getElementById('dualList').value=seedList.toFixed(2);
+      // Read directly from live DOM — lastCost/lastList may be stale until renderEditor() runs
+      var driverVal=num('driver');
+      if(mode==='cost'){
+        // driver = Item List; back-solve landed cost from current markup and freight
+        var mk=num('markup'), fr=num('freight');
+        var impliedCost=mk>0?(driverVal*0.45)/mk-fr:0; impliedCost=Math.max(0,impliedCost);
+        document.getElementById('dualCost').value=impliedCost.toFixed(2);
+        document.getElementById('dualList').value=driverVal.toFixed(2);
+      } else {
+        // driver = Landed Cost; carry it across and seed list from the computed value
+        document.getElementById('dualCost').value=driverVal.toFixed(2);
+        var mk2=num('markup'), fr2=num('freight');
+        var computedList=((driverVal+fr2)*mk2)/0.45;
+        if(computedList>0) document.getElementById('dualList').value=computedList.toFixed(2);
+      }
     }
     document.getElementById('markupSliderWrap').style.display=on?'none':'block';
     document.getElementById('markupComputedWrap').style.display=on?'block':'none';
