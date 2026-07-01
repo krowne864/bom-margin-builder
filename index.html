@@ -191,17 +191,36 @@
         <label for="itemLink">Product Link <span style="color:var(--text-dim);font-size:9px;letter-spacing:0;text-transform:none">optional</span></label>
         <input type="text" id="itemLink" placeholder="https://krowne.com/product-showcase/...">
       </div>
+
+      <!-- both checkboxes on one row -->
+      <div class="markup-row">
+        <label class="chk-wrap" title="Enter both cost and list — markup is back-solved automatically">
+          <input type="checkbox" id="markupDep">
+          Markup = dependent variable
+        </label>
+        <label class="chk-wrap" title="Include as install line — enter install cost" style="margin-left:14px">
+          <input type="checkbox" id="isInstall">
+          Mark as Install
+        </label>
+      </div>
+
+      <!-- variant / install seg -->
       <div class="field" id="segWrap">
-        <label>Variant <span class="mv" id="variantHint">Landed Cost &rarr; List</span></label>
+        <label id="segLabel">Variant <span class="mv" id="variantHint">Landed Cost &rarr; List</span></label>
         <div class="seg" id="seg">
           <button type="button" class="segbtn active" data-mode="list">Enter Landed Cost</button>
           <button type="button" class="segbtn" data-mode="cost">Enter Item List</button>
+          <button type="button" class="segbtn" id="installBtn" data-mode="install" style="display:none">Enter Install Cost</button>
         </div>
       </div>
+
+      <!-- single driver input -->
       <div class="field" id="driverWrap">
         <label for="driver" id="driverLabel">Landed Cost</label>
         <div class="inp"><span class="pre">$</span><input type="number" id="driver" value="1000" min="0" step="any"></div>
       </div>
+
+      <!-- dual inputs (markup dep var mode) -->
       <div class="dual" id="dualWrap" style="display:none">
         <div class="field">
           <label for="dualCost">Landed Cost</label>
@@ -212,12 +231,8 @@
           <div class="inp"><span class="pre">$</span><input type="number" id="dualList" value="3778" min="0" step="any"></div>
         </div>
       </div>
-      <div class="markup-row">
-        <label class="chk-wrap" title="Enter both cost and list — markup is back-solved automatically">
-          <input type="checkbox" id="markupDep">
-          Markup = dependent variable
-        </label>
-      </div>
+
+      <!-- markup slider -->
       <div id="markupSliderWrap" style="margin-bottom:9px">
         <div class="field" style="margin-bottom:0">
           <label for="markup">Markup <span class="mv" id="mv">1.70&times;</span></label>
@@ -225,17 +240,13 @@
           <div class="scale"><span>1.00&times;</span><span>3.00&times;</span></div>
         </div>
       </div>
+      <!-- markup computed display -->
       <div id="markupComputedWrap" style="display:none;margin-bottom:9px">
         <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px">Markup <span style="font-size:9px;text-transform:none;letter-spacing:0">(computed)</span></div>
         <div class="markup-computed" id="markupComputed">&mdash;</div>
         <div class="markup-note">Back-solved: (list &times; 0.45) &divide; (cost + freight)</div>
       </div>
-      <div class="markup-row" style="margin-top:2px">
-        <label class="chk-wrap" title="Include as install line — no pricing shown">
-          <input type="checkbox" id="isInstall">
-          Mark as Install
-        </label>
-      </div>
+
       <div class="three">
         <div class="field">
           <label for="freight">Freight</label>
@@ -319,7 +330,7 @@
     <div class="inp"><input type="email" id="email" placeholder="name@krowne.com"></div>
     <button class="btn" id="emailBtn">Email Summary</button>
   </div>
-  <div class="hint">Gross margin = (total dealer net &minus; total loaded cost) &divide; total dealer net &nbsp;&bull;&nbsp; Normal: List = (cost + freight) &times; markup &divide; 0.45 &nbsp;&bull;&nbsp; Markup dependent: markup back-solved from published list &amp; cost &nbsp;&bull;&nbsp; Install lines included in Total Net w/ Install only.</div>
+  <div class="hint">Gross margin = (total dealer net &minus; total loaded cost) &divide; total dealer net &nbsp;&bull;&nbsp; Normal: List = (cost + freight) &times; markup &divide; 0.45 &nbsp;&bull;&nbsp; Markup dependent: markup back-solved from published list &amp; cost &nbsp;&bull;&nbsp; Install lines: enter a cost that flows to Ext. Net and Total Net w/ Install.</div>
 </div>
 
 <script>
@@ -346,11 +357,13 @@
   function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m];});}
   function marginClass(m){return m>=0.50?'green':(m>=0.20?'yellow':'red');}
 
+  /* derive: install uses installCost as net directly */
   function derive(it){
     var cost=+it.cost||0, markup=+it.markup||0, freight=+it.freight||0, list=+it.list||0;
     var loaded=cost+freight;
     if(it.isInstall){
-      return {cost:0,markup:0,freight:0,list:0,loaded:0,net:0,margin:NaN,markupDep:false,isInstall:true};
+      var installCost=+it.installCost||0;
+      return {cost:0,markup:0,freight:0,list:0,loaded:0,net:installCost,margin:NaN,markupDep:false,isInstall:true};
     }
     if(it.markupDep){
       var bsMarkup=loaded>0?(list*0.45)/loaded:0;
@@ -370,20 +383,57 @@
     document.getElementById('bulkTier').innerHTML=opts; document.getElementById('bulkTier').value=DEFAULT_TIER;
   })();
 
-  var mode='list', lastCost=0, lastList=0, editingId=null, markupDepMode=false;
+  var mode='list', lastCost=0, lastList=0, editingId=null, markupDepMode=false, installMode=false;
 
-  document.getElementById('markupDep').addEventListener('change',function(){
-    markupDepMode=this.checked;
-    document.getElementById('markupSliderWrap').style.display=markupDepMode?'none':'block';
+  /* ── install mode toggle ── */
+  function applyInstallMode(on){
+    installMode=on;
+    if(on){ markupDepMode=false; document.getElementById('markupDep').checked=false; }
+    // seg: show only install button when on, normal buttons when off
+    document.getElementById('installBtn').style.display=on?'flex':'none';
+    document.querySelectorAll('#seg .segbtn:not(#installBtn)').forEach(function(b){b.style.display=on?'none':'flex';});
+    // hide slider + computed + dual in install mode
+    document.getElementById('markupSliderWrap').style.display=(on||markupDepMode)?'none':'block';
     document.getElementById('markupComputedWrap').style.display=markupDepMode?'block':'none';
-    document.getElementById('driverWrap').style.display=markupDepMode?'none':'block';
     document.getElementById('dualWrap').style.display=markupDepMode?'grid':'none';
-    document.getElementById('segWrap').style.display=markupDepMode?'none':'block';
+    // driver always visible (cost input in all modes)
+    document.getElementById('driverWrap').style.display='block';
+    document.getElementById('segWrap').style.display='block';
+    if(on){
+      document.querySelectorAll('#seg .segbtn').forEach(function(b){b.classList.remove('active');});
+      document.getElementById('installBtn').classList.add('active');
+      document.getElementById('segLabel').innerHTML='Install';
+      document.getElementById('variantHint') && (document.getElementById('variantHint').innerHTML='');
+      document.getElementById('driverLabel').textContent='Install Cost';
+    } else {
+      document.getElementById('installBtn').classList.remove('active');
+      document.getElementById('segLabel').innerHTML='Variant <span class="mv"><span id="variantHint">Landed Cost &rarr; List</span></span>';
+      document.getElementById('driverLabel').textContent=(mode==='cost'?'Item List':'Landed Cost');
+    }
     renderEditor();
-  });
+  }
+
+  /* ── dep var mode toggle ── */
+  function applyDepMode(on){
+    markupDepMode=on;
+    if(on){ installMode=false; document.getElementById('isInstall').checked=false; applyInstallMode(false); }
+    document.getElementById('markupSliderWrap').style.display=on?'none':'block';
+    document.getElementById('markupComputedWrap').style.display=on?'block':'none';
+    document.getElementById('driverWrap').style.display=on?'none':'block';
+    document.getElementById('dualWrap').style.display=on?'grid':'none';
+    document.getElementById('segWrap').style.display=on?'none':'block';
+    renderEditor();
+  }
+
+  document.getElementById('markupDep').addEventListener('change',function(){applyDepMode(this.checked);});
+  document.getElementById('isInstall').addEventListener('change',function(){applyInstallMode(this.checked);});
 
   function editorState(){
     var freight=num('freight'), tier=document.getElementById('tier').value;
+    if(installMode){
+      var installCost=num('driver');
+      return {cost:0,markup:0,freight:0,list:0,tier:tier,markupDep:false,installMode:true,installCost:installCost};
+    }
     if(markupDepMode){
       var cost=num('dualCost'), list=num('dualList');
       var loaded=cost+freight;
@@ -405,6 +455,15 @@
     var st=editorState();
     lastCost=st.cost; lastList=st.list;
     var loaded=st.cost+st.freight;
+    if(installMode){
+      document.getElementById('heroVal').textContent=fmt(st.installCost||0);
+      document.getElementById('loaded').textContent=fmt(0);
+      document.getElementById('net').textContent=fmt(st.installCost||0);
+      document.getElementById('netTier').textContent='';
+      var imp=document.getElementById('itemMargin'); imp.textContent='\u2014'; imp.className='pill';
+      document.getElementById('refRows').innerHTML='';
+      return;
+    }
     if(markupDepMode){
       var bs=loaded>0?(st.list*0.45)/loaded:0;
       document.getElementById('markupComputed').textContent=(isFinite(bs)&&bs>0)?bs.toFixed(4)+'\u00d7':'\u2014';
@@ -427,15 +486,15 @@
   }
 
   function setMode(m){
-    if(m===mode||markupDepMode) return;
+    if(m===mode||markupDepMode||installMode) return;
     document.getElementById('driver').value=(m==='cost'?lastList:lastCost).toFixed(2);
     mode=m;
     document.getElementById('driverLabel').textContent=(m==='cost'?'Item List':'Landed Cost');
-    document.getElementById('variantHint').innerHTML=(m==='cost'?'List &rarr; Landed Cost':'Landed Cost &rarr; List');
-    document.querySelectorAll('#seg .segbtn').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-mode')===m);});
+    var vh=document.getElementById('variantHint'); if(vh) vh.innerHTML=(m==='cost'?'List &rarr; Landed Cost':'Landed Cost &rarr; List');
+    document.querySelectorAll('#seg .segbtn:not(#installBtn)').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-mode')===m);});
     renderEditor();
   }
-  document.querySelectorAll('#seg .segbtn').forEach(function(b){b.addEventListener('click',function(){setMode(b.getAttribute('data-mode'));});});
+  document.querySelectorAll('#seg .segbtn:not(#installBtn)').forEach(function(b){b.addEventListener('click',function(){setMode(b.getAttribute('data-mode'));});});
   ['driver','markup','freight','tier','dualCost','dualList'].forEach(function(id){
     var el=document.getElementById(id); if(el) el.addEventListener('input',renderEditor);
   });
@@ -456,7 +515,8 @@
       qty:Math.max(1,Math.round(num('qty'))||1),
       list:markupDepMode?+st.list.toFixed(2):0,
       markupDep:markupDepMode,
-      isInstall:document.getElementById('isInstall').checked
+      isInstall:installMode,
+      installCost:installMode?+(num('driver').toFixed(2)):0
     };
     if(editingId){
       var i=items.findIndex(function(x){return x.id===editingId;});
@@ -477,29 +537,25 @@
     document.getElementById('tier').value=it.tier;
     document.getElementById('freight').value=it.freight;
     document.getElementById('qty').value=it.qty||1;
-    document.getElementById('isInstall').checked=!!it.isInstall;
-    if(it.markupDep){
-      document.getElementById('markupDep').checked=true; markupDepMode=true;
-      document.getElementById('markupSliderWrap').style.display='none';
-      document.getElementById('markupComputedWrap').style.display='block';
-      document.getElementById('driverWrap').style.display='none';
-      document.getElementById('dualWrap').style.display='grid';
-      document.getElementById('segWrap').style.display='none';
+    if(it.isInstall){
+      document.getElementById('isInstall').checked=true;
+      applyInstallMode(true);
+      document.getElementById('driver').value=(it.installCost||0).toFixed(2);
+    } else if(it.markupDep){
+      document.getElementById('markupDep').checked=true; applyDepMode(true);
       document.getElementById('dualCost').value=it.cost;
       document.getElementById('dualList').value=it.list||0;
     } else {
-      document.getElementById('markupDep').checked=false; markupDepMode=false;
-      document.getElementById('markupSliderWrap').style.display='block';
-      document.getElementById('markupComputedWrap').style.display='none';
-      document.getElementById('driverWrap').style.display='block';
-      document.getElementById('dualWrap').style.display='none';
-      document.getElementById('segWrap').style.display='block';
+      document.getElementById('markupDep').checked=false;
+      document.getElementById('isInstall').checked=false;
+      applyInstallMode(false);
+      applyDepMode(false);
       document.getElementById('markup').value=it.markup;
       if(mode!=='list'){
         mode='list';
         document.getElementById('driverLabel').textContent='Landed Cost';
-        document.getElementById('variantHint').innerHTML='Landed Cost &rarr; List';
-        document.querySelectorAll('#seg .segbtn').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-mode')==='list');});
+        var vh=document.getElementById('variantHint'); if(vh) vh.innerHTML='Landed Cost &rarr; List';
+        document.querySelectorAll('#seg .segbtn:not(#installBtn)').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-mode')==='list');});
       }
       document.getElementById('driver').value=it.cost;
     }
@@ -566,14 +622,12 @@
 
   document.getElementById('applyAll').addEventListener('click',function(){
     var t=document.getElementById('bulkTier').value;
-    items.forEach(function(it){it.tier=t;}); renderBOM();
+    items.forEach(function(it){if(!it.isInstall)it.tier=t;}); renderBOM();
   });
   document.getElementById('applyMarkup').addEventListener('click',function(){
     var m=parseFloat(document.getElementById('bulkMarkup').value);
     if(!isFinite(m)||m<=0){alert('Enter a valid markup value.');return;}
-    items.forEach(function(it){
-      if(!it.markupDep&&!it.isInstall){it.markup=+m.toFixed(4);}
-    });
+    items.forEach(function(it){if(!it.markupDep&&!it.isInstall){it.markup=+m.toFixed(4);}});
     renderBOM();
   });
   document.getElementById('clearBtn').addEventListener('click',function(){
@@ -583,7 +637,7 @@
 
   function csvCell(v){v=String(v==null?'':v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
   document.getElementById('exportBtn').addEventListener('click',function(){
-    var head=['Part Number','Description','Link','Qty','Landed Cost','Freight','Markup','Tier','Item List','Unit Net','Ext Net','Margin %','Markup Dep','Install'];
+    var head=['Part Number','Description','Link','Qty','Landed Cost','Freight','Markup','Tier','Item List','Unit Net','Ext Net','Margin %','Markup Dep','Install','Install Cost'];
     var rows=items.map(function(it){
       var d=derive(it); var qty=Math.max(1,+it.qty||1);
       return [it.partNumber,it.description,it.link||'',qty,
@@ -593,10 +647,11 @@
               it.isInstall?'':it.tier,
               it.isInstall?'':d.list.toFixed(2),
               it.isInstall?'':d.net.toFixed(2),
-              it.isInstall?'':((d.net*qty).toFixed(2)),
+              it.isInstall?(it.installCost||0).toFixed(2):(d.net*qty).toFixed(2),
               it.isInstall?'':(isFinite(d.margin)?(d.margin*100).toFixed(1):''),
               it.markupDep?'Y':'',
-              it.isInstall?'Y':''].map(csvCell).join(',');
+              it.isInstall?'Y':'',
+              it.isInstall?(it.installCost||0).toFixed(2):''].map(csvCell).join(',');
     });
     var csv=[head.map(csvCell).join(',')].concat(rows).join('\r\n');
     var blob=new Blob([csv],{type:'text/csv'});
@@ -638,6 +693,7 @@
         var iL=idx(['link','url','product link','product url']);
         var iMD=idx(['markup dep','markupdep','dependent']);
         var iINS=idx(['install','is install','isinstall']);
+        var iIC=idx(['install cost']);
         var iIL=idx(['item list']);
         var validTier=function(t){t=(t||'').trim();return TIERS.some(function(x){return x.key===t;})?t:DEFAULT_TIER;};
         var added=0;
@@ -659,7 +715,8 @@
             qty:Math.max(1,Math.round(parseFloat((iQ>=0?c[iQ]:'')||'')||1)),
             list:parseFloat((iIL>=0?c[iIL]:'')||'')||0,
             markupDep:isMD,
-            isInstall:isIns
+            isInstall:isIns,
+            installCost:parseFloat((iIC>=0?c[iIC]:'')||'')||0
           });
           added++;
         }
@@ -678,7 +735,7 @@
       var d=derive(it); var qty=Math.max(1,+it.qty||1);
       if(it.isInstall){ totInstall+=d.net*qty; }
       else { totNet+=d.net*qty; totCost+=d.loaded*qty; totList+=d.list*qty; }
-      return (i+1)+'. '+(it.partNumber||'(no PN)')+' \u2014 '+(it.description||'')+' (Qty '+qty+')'+(it.isInstall?' [INSTALL]':'')+
+      return (i+1)+'. '+(it.partNumber||'(no PN)')+' \u2014 '+(it.description||'')+' (Qty '+qty+')'+(it.isInstall?' [INSTALL '+fmt(d.net)+']':'')+
         (it.isInstall?'':('\n   Item List '+fmt(d.list)+' | Markup '+d.markup.toFixed(2)+'\u00d7'+(d.markupDep?' [dep]':'')+
         ' | Tier '+it.tier+' | Ext Net '+fmt(d.net*qty)+' | Margin '+pct(d.margin)))+
         (it.link?'\n   '+it.link:'');
