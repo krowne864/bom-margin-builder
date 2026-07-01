@@ -588,8 +588,9 @@
       tb.innerHTML='<tr><td colspan="11" class="empty">No items yet. Build an item above and click \u201cAdd to BOM\u201d, or import a CSV.</td></tr>';
     } else {
       tb.innerHTML=items.map(function(it,idx){
-        var d=derive(it); var qty=Math.max(1,+it.qty||1); var extNet=d.net*qty;
-        if(it.isInstall){ totInstall+=extNet; } else { totList+=d.list*qty; totNet+=extNet; totCost+=d.loaded*qty; }
+        var d=derive(it); var qty=Math.max(1,+it.qty||1); var extNet=Math.round(d.net*qty*100)/100;
+        var rowList=Math.round(d.list*qty*100)/100; var rowCost=Math.round(d.loaded*qty*100)/100;
+        if(it.isInstall){ totInstall+=extNet; } else { totList+=rowList; totNet+=extNet; totCost+=rowCost; }
         var linkIcon='<svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:middle;margin-left:5px;opacity:.75"><path d="M6.5 9.5l3-3M9 4.5h2.5v2.5M11.5 4.5L7 9M5 6H3.5A1.5 1.5 0 002 7.5v5A1.5 1.5 0 003.5 14h5A1.5 1.5 0 0010 12.5V11"/></svg>';
         var pnCell=it.link
           ? '<a href="'+esc(it.link)+'" target="_blank" rel="noopener" style="color:var(--teal);text-decoration:none;font-weight:700">'+esc(it.partNumber||'\u2014')+linkIcon+'</a>'
@@ -682,6 +683,10 @@
   document.getElementById('importBtn').addEventListener('click',function(){document.getElementById('csvFile').click();});
   document.getElementById('csvFile').addEventListener('change',function(e){
     var f=e.target.files[0]; if(!f)return;
+    // pre-populate project name from filename (only if field is empty)
+    var rawName=f.name.replace(/\.csv$/i,'').replace(/[_\-]+/g,' ').trim();
+    var projEl=document.getElementById('project');
+    if(rawName&&!projEl.value.trim()) projEl.value=rawName;
     var rd=new FileReader();
     rd.onload=function(){
       try{
@@ -738,8 +743,8 @@
     var totNet=0,totCost=0,totList=0,totInstall=0;
     var lines=items.map(function(it,i){
       var d=derive(it); var qty=Math.max(1,+it.qty||1);
-      if(it.isInstall){ totInstall+=d.net*qty; }
-      else { totNet+=d.net*qty; totCost+=d.loaded*qty; totList+=d.list*qty; }
+      if(it.isInstall){ totInstall+=Math.round(d.net*qty*100)/100; }
+      else { totNet+=Math.round(d.net*qty*100)/100; totCost+=Math.round(d.loaded*qty*100)/100; totList+=Math.round(d.list*qty*100)/100; }
       return (i+1)+'. '+(it.partNumber||'(no PN)')+' \u2014 '+(it.description||'')+' (Qty '+qty+')'+(it.isInstall?' [INSTALL '+fmt(d.net)+']':'')+
         (it.isInstall?'':('\n   Item List '+fmt(d.list)+' | Markup '+d.markup.toFixed(2)+'\u00d7'+(d.markupDep?' [dep]':'')+
         ' | Tier '+it.tier+' | Ext Net '+fmt(d.net*qty)+' | Margin '+pct(d.margin)))+
